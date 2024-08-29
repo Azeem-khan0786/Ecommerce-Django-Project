@@ -1,0 +1,36 @@
+.product-container {
+    display: flex;
+    justify-content: center; /* Centers the product box horizontally */
+    padding: 20px;
+}
+
+.product-box {
+    border: 1px solid #ccc;
+    width: 300px;
+    text-align: center;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    overflow: hidden; /* Ensures no content spills out */
+}
+
+.product-image img {
+    width: 100%; /* Ensures the image covers the full width of its container */
+    height: auto; /* Maintains the image's aspect ratio */
+}
+
+.product-details {
+    padding: 15px;
+}
+
+.product-title {
+    margin: 10px 0; /* Adds space above and below the title */
+    font-size: 20px; /* Sets the font size for the title */
+    color: #333; /* Text color for the title */
+    width: 50px;
+}
+
+.product-price {
+    font-size: 18px; /* Font size of the price */
+    color: #888; /* Color of the price */
+    font-weight: bold; /* Makes the price text bold */
+}

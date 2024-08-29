@@ -1,0 +1,45 @@
+{% extends "Alibaba/base.html" %}
+{% load static %}
+<!-- <link rel="stylesheet" href="{% static 'css/catagory.css' %}"> -->
+{% block title %}catagories page {% endblock  %}
+{% block content %}
+   {% include "Alibaba/navbar.html" %}
+  {% comment %} catagories {{productlist}} {% endcomment %}
+
+  
+
+
+
+<div class="container-fluid">
+    
+    <div class="row" >
+        {% for x in productlist %}
+        <div></div>
+        <div class="product-container m-5 " >
+            <div class="product-box text-center ">
+                
+                <div class="product-image">
+                    <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
+                </div>
+                <div class="product-details text-dark">
+                    <div class="text-center" style="width: 200px;"> {{x.id}}.{{x.title}}</div>
+                    <div class="product-price "><small class="text-color m-1">Retail Price </small>${{x.selling_price}}</div>
+                    <div class="product-price"><small class="text-color m-1">Available Discount </small>${{x.discount}}</div>
+                    <button class="btn btn-primary"> <a href="{% url 'productDetail' x.pk  %}" style="text-decoration: none; color: white;" >Visit here Now</a></button>
+
+                </div>
+            </div>
+        </div>
+    
+  {% endfor %}
+</div>
+</div>
+
+<style>
+    .text-color{
+        color: red;
+    }
+</style>
+
+  {% include "Alibaba/footer.html" %}
+{% endblock  %}

@@ -1,0 +1,33 @@
+
+{% extends "Alibaba/base.html" %}
+{% load static %}
+{% block title %} Product Details{% endblock %}
+{% block content %}
+{% include "Alibaba/navbar.html" %}
+   <h3 class="text-center" style="font-family: Goergia;font-size: 50px;"  ></h3>
+   <div class="container">
+     <div class="row flex justify-content-between">
+        <div class="img2 col-lg-5 mt-5">
+            <img src="{{data.product_image.url}}" alt="" width="200px" height="300px">
+        </div>
+        <div class="productdetail col-lg-5">
+            <h5 style="font-family: Goergia;font-size: 50px;">{{data.title}}</h5>
+            <h5>$ {{data.discount}}/-</h5>
+            <small class="text-decoration-line-through text-muted fs-5">$ {{data.selling_price}}/-</small>
+            <br><br>
+            <h4> Product Features</h4>
+            <small>{{data.description}}</small>
+            <h4> Product Composition</h4>
+            <small>{{data.composition}}</small>
+            <div class="buttons row flex" style="font-family: Rajdhani;">
+                  <button class="btn btn-warning p-1 m-1 btn-1 btn btn-primary w-100"> <a href="{% url 'addcart' data.id %}" class="text-decoration-none text-white ">Add to Card</a></button>
+                  
+                  <button class="btn btn-dark p-1 m-1 btn-1 btn btn-primary w-100"> <a href="#" class="text-decoration-none text-white ">Buy Now</a></button>
+          
+            </div>
+
+        </div>
+     </div>
+   </div>
+   {% include "Alibaba/footer.html" %}
+{% endblock %}

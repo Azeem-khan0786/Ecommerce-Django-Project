@@ -1,0 +1,29 @@
+{% extends "Alibaba/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}User Profile{% endblock  %}
+{% block content %}
+{% include "Alibaba/navbar.html" %}
+
+<h3>Welcome {{request.user}}</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 m-5">
+            <form action="" method="post">
+                {% csrf_token %}
+                {{form|crispy}}
+
+                <button class="btn btn-primary text-dark m-1" type="submit">save me</button>
+                <button class="btn btn-success text-dark " type="cancel">go back</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% include "Alibaba/footer.html" %}
+ 
+{% endblock  %}

@@ -1,0 +1,91 @@
+{% load static %}
+<style>
+  /* .navbar-expand-lg{
+    position:-webkit-sticky;
+    position: sticky;
+    top: 0;
+  } */
+</style>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark " style="height:50px;">
+  <a class="navbar-brand" href="#"> <img src="{% static 'image/shop.jpg' %}" alt="" width="40" height="40"> </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item active">
+        <a class="nav-link" href="/"> <i class="fa-solid fa-house"></i><span class="sr-only">(current)</span></a>
+      </li>
+      <div class="btn-group ml-3">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          products
+        </a>
+        {% comment %} {% url "catagory" "PNT" %} {% endcomment %}
+        <div class="dropdown-menu ">
+          <a class="dropdown-item" href='{% url "catagory" "PNT" %}'>Pents</a>
+          <a class="dropdown-item" href='{% url "catagory" "ST" %}'>Shirts</a>
+          <a class="dropdown-item" href='{% url "catagory" "SO" %}'>Shoes</a>
+          <a class="dropdown-item" href='{% url "catagory" "SA" %}'>Sharee</a>
+          <a class="dropdown-item" href='{% url "catagory" "WA" %}'>Belts</a>
+
+
+        </div>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'about' %}">About Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " href="{% url 'contact' %}">Contact Us</a>
+        </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0" action="{% url 'product_search' %}" method="get">
+      <ul class="navbar-nav m-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" href="/admin">Admin</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'registration' %}">Registration</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'login' %}">Login</a>
+        </li>
+      </ul>
+      {% if user.is_authenticated %}
+      <div class="btn-group ml-3">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fa-solid fa-user m-1"></i>{{request.user}}
+        </a>
+
+        </ul>
+        <div class="dropdown-menu ">
+
+          <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+          <a class="dropdown-item" href="#">Orders</a>
+          <a class="dropdown-item" href="{% url 'changepassword' %}">Change Password</a>
+          <a class="dropdown-item" href="{% url 'logout' %}">logout</a>
+
+          <a class="dropdown-item" href="{% url 'viewcart'  %}">View Cart</a>
+          <a class="dropdown-item" href="{% url 'checkout'  %}">Checkout Cart</a>
+
+
+        </div>
+        
+      </div>
+      {% endif %}
+      <input class="form-control mr-sm-2 p-1" type="search" placeholder="Search in Alibaba" aria-label="Search"
+        name='search'>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search </button>
+
+    </form>
+    {% if user.is_authenticated %}
+    <a class="btn btn-success btn-sm ml-3" href="{% url 'viewcart'  %}">
+      <i class="fa fa-shopping-cart"></i> Cart
+      <span class="badge badge-light">{{count}}</span>
+    </a>
+    {% endif %}
+
+
+</nav>

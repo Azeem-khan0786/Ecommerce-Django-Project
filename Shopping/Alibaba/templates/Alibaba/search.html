@@ -1,0 +1,25 @@
+{% extends "Alibaba/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %} Search Page{% endblock  %}
+{% block content %}
+{% include "Alibaba/navbar.html" %}
+
+ 
+ <div class="container m-auto w-25 ">
+    {% if products %}
+        <h2>Products in Category: {{ category }}</h2>
+        <ul>
+            {% for product in products %}
+                <li>{{ product.title }} - ${{ product.selling_price }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No products found for category: {{ category }}</p>
+    {% endif %}
+ </div>
+ 
+
+{% include "Alibaba/footer.html" %}
+ 
+{% endblock  %}

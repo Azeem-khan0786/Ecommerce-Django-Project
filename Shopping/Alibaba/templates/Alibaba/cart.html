@@ -1,0 +1,56 @@
+{% extends "Alibaba/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}View Cart Items{% endblock %}
+
+{% block content %}
+{% include "Alibaba/navbar.html" %}
+
+<div class="container">
+    <h5 class="text-center" style="font-family: Georgia; font-size: 30px;">View Cart Items</h5><br>
+
+    <div class="row justify-content-between">
+        <div class="col"> <!-- Column 1 for product details -->
+            {% for item in cart_item %}
+           
+            <div class="row mb-3  border border-secondary rounded-sm p-3">
+                <div class="col-3">
+                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.title }}" width="100px" height="150px">
+                </div>
+                <div class="col-9">
+                    <h5 style="font-family: Georgia; font-size: 30px;"><a href="{% url 'productDetail' item.id  %}">{{ item.product.title }}</a></h5>
+                    <div>
+                        <small>{{ item.product.description }}</small>
+                    </div><br>
+                    <div class="row align-items-center  m-auto ">
+                        <button class="btn btn-primary btn-sm mr-2"><a href="{% url 'removecart' item.id %}" class="text-white text-decoration-none">Remove Item</a></button>
+                        <div class="ml-3"><strong>Quantity:</strong> {{ item.quantity }}</div>
+                        <div class="ml-auto"><strong>Total MRP:</strong> $ {{ item.product.selling_price }}</div> 
+                        <div class="ml-auto"><strong>Total Price:</strong> $ {{ item.product.value }}</div> 
+                           
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-5 ml-3"> <!-- Column 2 for total amount -->
+            <div class="text-center text-dark bg-warning p-1" style="font-family: Rajdhani;">Total Amount</div>
+            <div class="mt-4">
+                <h5>Total Price: $ {{amount }} /-</h5>
+                <h5>Shipping Charge: $ 40 /-</h5>
+                <h5>Amount to Pay (including GST): $ {{ total_amount }} /-</h5>
+            </div>
+            <div class="buttons mt-4">
+                <button class="btn btn-dark btn-block"><a href="{% url 'checkout' %}" class="text-white text-decoration-none">Place Order</a></button>
+                <button class="btn btn-primary btn-block"><a href="/" class="text-white text-decoration-none">Back to shopping</a></button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<hr style="border: 1px solid red;">
+{% include "Alibaba/footer.html" %}
+
+{% endblock %}
