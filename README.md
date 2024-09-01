@@ -19,3 +19,12 @@ django-admin 4.2.13
 10. python3 manage.py startapp homeapp( make app as homeapp)
 11. python3 manage.py runserver ( run your server)
 ```
+## Start Project
+``` python
+python3 manage.py runserver
+```
+## Genrate Database Query and Execute query
+```python
+python manage.py makemigrations
+python manage.py migrate
+```
