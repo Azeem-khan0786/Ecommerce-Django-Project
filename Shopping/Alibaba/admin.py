@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import *
 
+# admin email =azeemkhan@xyz.in with 1234 username =khan
 # Register your models here.
 class ProductAdmin(admin.ModelAdmin):
    list_display=('id','title',"selling_price","discount","catagory","product_image")

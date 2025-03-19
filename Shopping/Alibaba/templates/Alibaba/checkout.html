@@ -69,7 +69,8 @@
                 <h5>Amount to Pay (including GST): $ {{ total_amount }} /-</h5>
             </div>
             <div class="buttons mt-4">
-                <button class="btn btn-warning btn-block" id="rzp-button1">Pay with Razorpay</button>
+                {{paypal_form.render}}
+                <button class="btn btn-warning btn-block" id="">Pay with Razorpay{{paypal_form.render}}</button>
                 <button class="btn btn-primary btn-block"><a href="{% url 'viewcart'  %}" class="text-white text-decoration-none">Back to shopping Cart</a></button>
             </div>
             

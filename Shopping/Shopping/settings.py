@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'Alibaba',
     "crispy_forms",
     "crispy_bootstrap4",
+    'paypal.standard.ipn', # paypal app intalled
   
 
 ]
@@ -136,4 +137,7 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
+MEDIA_URL = "/media/" 
+
+PAYPAL_TEST = True # use paypal sandbox
+PAYPAL_RECEIVER_EMAIL = 'businessalibaba@gmail.com' # business sandbox account

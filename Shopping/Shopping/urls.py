@@ -15,13 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path , include
 from Alibaba import views
 from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('payment_success',views.payment_success,name='payment_success'),
+    path('payment_failed',views.payment_failed,name='payment_failed'),
+
     path('',views.home,name='home'),
     path('about',views.aboutUs,name='about'),
     path('contact',views.contactUs,name='contact'),
@@ -39,4 +42,5 @@ urlpatterns = [
     path('checkout/',views.Checkout.as_view(),name='checkout'),
     path('search/',views.product_search, name='product_search'),
     path('removecart/<int:item_id>',views.remove_from_cart,name='removecart'),
+    path('paypal/', include("paypal.standard.ipn.urls")),  # ins=clude paypal view`s url`
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -21,7 +21,7 @@ class RegistrationForm(UserCreationForm):
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=63,widget=forms.TextInput(attrs={'class':'form-control bg-smoke','placeholder':'username1'}))
     password = forms.CharField(max_length=63, widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'password'}))
-    feedback = forms.CharField(widget=forms.Textarea) 
+    
     # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
      
 class CustomerProfileForm(forms.ModelForm):

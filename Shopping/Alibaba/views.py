@@ -4,7 +4,14 @@ from django.views import View
 from .forms import RegistrationForm,LoginForm,CustomerProfileForm,ChangePasswordForm
 from django.contrib import messages
 from django.contrib.auth import login, authenticate ,logout
-import razorpay
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy , reverse
+from paypal.standard.forms import PayPalPaymentsForm
+from django.conf import settings
+import uuid # unique user_id for duplicate user
+
+
+
 
 
 # Create your views here.
@@ -154,7 +161,7 @@ class ChangePasswordView(View):
             messages.warning(request,'Password  incorrect!')
         return render(request,'Alibaba/changePassword.html',locals())
 
- 
+@login_required(login_url=reverse_lazy('login'))
 def add_cart(request, product_id):
     product = ProductModel.objects.get(id=product_id)
     cart_item, created = CartItemModel.objects.get_or_create(product=product,user=request.user)
@@ -182,6 +189,24 @@ class Checkout(View):
         # client = razorpay.Client(auth=("YOUR_ID", "YOUR_SECRET"))
         # data = { "amount": 500, "currency": "INR", "receipt": "order_rcptid_11" }
         # payment = client.order.create(data=data)
+        # get the host
+        # create paypal form
+        host = request.get_host()
+        # dict
+        paypal_dict = {
+            'business':settings.PAYPAL_RECEIVER_EMAIL,
+            'amount' : 500,
+            'item_name' : 'Book',
+            'no_shipping':'2',
+            'invoice': str(uuid.uuid4()),
+            'currency_code': 'USD',
+            'notify_url': 'https://{}{}'.format(host,reverse("paypal-ipn")),
+            'return_url': 'https://{}{}'.format(host,reverse("payment_success")),
+            'cancel_url': 'https://{}{}'.format(host,reverse("payment_failed")),
+
+
+        }
+        paypal_form = PayPalPaymentsForm(initial = paypal_dict)
         return render(request,'Alibaba/checkout.html',locals())
 
 def remove_from_cart(request, item_id):
@@ -197,3 +222,8 @@ def product_search(request):
         products = products.filter(category=category)  # Assuming 'category' is a field in your ProductModel
 
     return render(request, 'Alibaba/search.html', {'products': products, 'category': category})
+
+def payment_success(request):
+    pass
+def payment_failed(request):
+    pass
