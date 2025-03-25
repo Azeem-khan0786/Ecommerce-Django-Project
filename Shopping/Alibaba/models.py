@@ -68,8 +68,6 @@ class Category(models.Model):
     @staticmethod
     def get_all_categories():
         return Category.objects.all()
-
-
     def __str__(self):
         return self.name        
         
@@ -80,11 +78,20 @@ class ProductModel(models.Model):
     description = models.TextField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)  # New ForeignKey
     product_image = models.ImageField(upload_to='proImage', blank=True, null=True)
+    # product_image = models.URLField()  # Ensure it's a URLField, not ImageField!
     composition = models.TextField( blank=True,null=True)
 
     def __str__(self):
         return f"{self.title}"
-
+    # retrive all product 
+    @staticmethod
+    def get_products():
+        return ProductModel.objects.all()
+    
+    # retrive all product based on category
+    @staticmethod
+    def get_products_by_category(category_id):
+        return ProductModel.objects.filter(category_id=category_id)
     
    
     

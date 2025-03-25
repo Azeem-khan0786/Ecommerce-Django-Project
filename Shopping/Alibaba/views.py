@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import ProductModel,CustomerModel,CartItemModel
+from .models import ProductModel,Category,CustomerModel,CartItemModel
 from django.views import View
 from .forms import RegistrationForm,LoginForm,CustomerProfileForm,ChangePasswordForm
 from django.contrib import messages
@@ -11,15 +11,25 @@ from django.conf import settings
 import uuid # unique user_id for duplicate user
 
 
-
-
-
 # Create your views here.
 
 def home(request):
-    data =ProductModel.objects.all()
+    products =ProductModel.get_products()
+    
+    categories = Category.objects.all()
+    Category_id=request.GET.get('category')
+    print(Category_id)
+    if Category_id:
+        products = ProductModel.get_products_by_category(Category_id)     
 
-    return render(request,'Alibaba/home.html',{'data':data})
+    else:
+        products = ProductModel.get_products()     
+    data={
+        'products': products,
+        'categories': categories
+    }
+
+    return render(request,'Alibaba/home.html', data )
 
 def aboutUs(request):
     return render(request,'Alibaba/about.html')

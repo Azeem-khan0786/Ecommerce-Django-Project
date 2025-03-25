@@ -21,10 +21,6 @@ Home Page
           <ul class="navbar-nav mr-auto">
             {% if user.is_authenticated %}
             
-            
-            <li class="nav-item">
-              <a class="nav-link" href="#">Welcome, {{user.username}}</a>
-            </li>
             <li class="nav-item">
               
             </li>
@@ -44,6 +40,7 @@ Home Page
       </nav>
     {% include "Alibaba/slidder-content.html" %}
     <hr style="height: 2px; background-color: rgb(160, 18, 18);">
+    
     <!-- Product details -->
     <div class="container-fluid">
         <div class="row bg-primary p-2 text-center text-white ">
@@ -53,8 +50,28 @@ Home Page
         </div>
     </div>
     <br><br>
+    {% for cat in categories  %}
+    <a href='/'>{{cat.name}}</a>
+    {% endfor %}
+    <div class="container">
+      <div class="row justify-content-center">
+          <div class="col-lg-3">
+              <div class=" text-center">
+                  
+  
+                  {% for category in categories %}
+                  <a href="/?category={{ category.id }}" class="">
+                      {{ category.name }}
+                  </a>
+                  {% endfor %}
+              </div>
+          </div>
+      </div>
+  </div>
     <div class="container-fluid">
+      
         <div class="row">
+    
             <div class="col-md-3">
                 <div class="card text-center mb-3" style="max-width: 18rem;">
                     <div class="card-header">Man's pents</div>
@@ -87,13 +104,13 @@ Home Page
                     <a href="{% url "category" "WA" %}">Man's Woddenbelt pants2020 </a>
                 </div>
             </div>
-            {% for x in data %}
+            {% for x in products %}
        
             <div class="col-md-3 text-center">
               <div class="card text-center mb-3" style="max-width: 18rem;">
                 
                 <div class="product-image">
-                    <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
+                     <img src="{{ product.product_image }}" alt="{{ product.title }}" width="200px" height="300px">
                 </div>
                 <div class="product-details text-dark ">
                     <div class="text-center" > {{x.id}}.{{x.title}}</div>
@@ -107,11 +124,13 @@ Home Page
                 </div>
             </div>
         </div>
+
     
   {% endfor %}
 
         </div>
     </div>
+    {{categories}}
     {% include "Alibaba/Pagination.html" %}
     {% include "Alibaba/footer.html" %}
 
