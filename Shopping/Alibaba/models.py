@@ -48,18 +48,6 @@ STATE_CHOICES=(('AP' , 'Andhra Pradesh'),
 ('PY' , 'Puducherry'),
 )
 
-class ProductModel(models.Model):
-    title=models.CharField(max_length=70)
-    selling_price=models.FloatField()
-    discount=models.FloatField()
-    description=models.TextField(max_length=200)
-    catagory = models.CharField(choices=Catagories_Choice, max_length=5,blank=True, null=True)
-    product_image=models.ImageField(upload_to='proImage',blank=True,null=True)
-    composition=models.TextField()
-
-    def __str__(self):
-        return f"{self.title} "
-    
 class CustomerModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=100)
@@ -73,6 +61,34 @@ class CustomerModel(models.Model):
         return self.name + " " + self.location
     class Meta:
         unique_together=('user',)
+# method for create category        
+class Category(models.Model):
+    name = models.CharField(max_length=20,default='1')
+
+    @staticmethod
+    def get_all_categories():
+        return Category.objects.all()
+
+
+    def __str__(self):
+        return self.name        
+        
+class ProductModel(models.Model):
+    title = models.CharField(max_length=70)
+    selling_price = models.FloatField()
+    discount = models.FloatField()
+    description = models.TextField(max_length=200)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)  # New ForeignKey
+    product_image = models.ImageField(upload_to='proImage', blank=True, null=True)
+    composition = models.TextField( blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.title}"
+
+    
+   
+    
+
 
 # models for add cart 
 class CartItemModel(models.Model):

@@ -31,15 +31,15 @@ def displayPost(request):
     item=ProductModel.objects.all()
     return render(request,'Alibaba/displayPost.html',{'item':item})
 
-class CatagoryView(View):
+class CategoryView(View):
     def get(self,request,val):
-        productlist=ProductModel.objects.filter(catagory=val)
+        productlist=ProductModel.objects.filter(category=val)
         print(productlist)
-        # title=ProductModel.objects.filter(catagory=val).values("title")
-        data=ProductModel.objects.filter(catagory=val).values('title')
+        # title=ProductModel.objects.filter(category=val).values("title")
+        data=ProductModel.objects.filter(category=val).values('title')
         # print(data.title)
 
-        return render(request,"Alibaba/catagory.html",locals())
+        return render(request,"Alibaba/category.html",locals())
     
 class ProductView(View):
     def get(self,request,pk):
@@ -184,7 +184,7 @@ def view_cart(request):
     
 class Checkout(View):
     def get(self,request):
-        cart_item=CartItemModel.objects.filter(user=request.user)
+        cart_item=ProductModel.objects.filter(user=request.user)
         add=CustomerModel.objects.filter(user=request.user)
         # client = razorpay.Client(auth=("YOUR_ID", "YOUR_SECRET"))
         # data = { "amount": 500, "currency": "INR", "receipt": "order_rcptid_11" }
@@ -217,7 +217,7 @@ def remove_from_cart(request, item_id):
 
 def product_search(request):
     products = ProductModel.objects.all()
-    category = request.GET.get('catagory')  # Use 'category' instead of 'catagory' for consistency
+    category = request.GET.get('category')  # Use 'category' instead of 'category' for consistency
     if category:
         products = products.filter(category=category)  # Assuming 'category' is a field in your ProductModel
 
