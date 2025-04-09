@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import ProductModel,Category,CustomerModel,CartItemModel
+from .models import ProductModel,Category,CustomerModel,CartItem
 from django.views import View
 from .forms import RegistrationForm,LoginForm,CustomerProfileForm,ChangePasswordForm
 from django.contrib import messages
@@ -10,7 +10,8 @@ from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid # unique user_id for duplicate user
 
-
+# update image field of ProductImage using api
+# class UpdateImage()
 # Create your views here.
 
 def home(request):
@@ -36,7 +37,7 @@ def aboutUs(request):
  
 def contactUs(request):
     return render(request,'Alibaba/contact.html')
-ChangePasswordForm
+# ChangePasswordForm
 def displayPost(request):
     item=ProductModel.objects.all()
     return render(request,'Alibaba/displayPost.html',{'item':item})
@@ -174,14 +175,14 @@ class ChangePasswordView(View):
 @login_required(login_url=reverse_lazy('login'))
 def add_cart(request, product_id):
     product = ProductModel.objects.get(id=product_id)
-    cart_item, created = CartItemModel.objects.get_or_create(product=product,user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(product=product,user=request.user)
     cart_item.quantity += 1
     # print(cart_item.quantity)
     cart_item.save()
     return redirect('viewcart')
 
 def view_cart(request):
-    cart_item = CartItemModel.objects.filter(user=request.user)
+    cart_item = CartItem.objects.filter(user=request.user)
     amount = 0
     
     for item in cart_item:
@@ -194,6 +195,8 @@ def view_cart(request):
     
 class Checkout(View):
     def get(self,request):
+        # if request.user.is_authenticated:
+
         cart_item=ProductModel.objects.filter(user=request.user)
         add=CustomerModel.objects.filter(user=request.user)
         # client = razorpay.Client(auth=("YOUR_ID", "YOUR_SECRET"))
@@ -221,7 +224,7 @@ class Checkout(View):
 
 def remove_from_cart(request, item_id):
     user=request.user
-    cart_item = CartItemModel.objects.get(id=item_id,user=user)
+    cart_item = CartItem.objects.get(id=item_id,user=user)
     cart_item.delete()
     return redirect('viewcart')
 

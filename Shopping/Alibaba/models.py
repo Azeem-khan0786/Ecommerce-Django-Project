@@ -93,19 +93,59 @@ class ProductModel(models.Model):
     def get_products_by_category(category_id):
         return ProductModel.objects.filter(category_id=category_id)
     
+# model Order 
+class Order(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    email= models.EmailField(max_length=30)
+    shipping_adress = models.TextField(max_length=255)
+    amount_paid= models.DecimalField(max_digits=5,decimal_places=2)
+    shipping_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order place by {self.user}"
+# model OrderItem for indivitual item
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order,on_delete=models.CASCADE)
+    product = models.ForeignKey(ProductModel,on_delete=models.CASCADE)
+    quantity=models.PositiveIntegerField(default=1)   
+    price = models.DecimalField( max_digits=5, decimal_places=2)
+
+    # def __str__(self):
+    #     pass
+
+class ShippingAddress(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    address_line = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.address_line}, {self.city}'    
    
     
 
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Cart ({self.user.username})"
+
+    def get_cart_total(self):
+        return sum(item.get_total_price() for item in self.items.all())
 # models for add cart 
-class CartItemModel(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
-    product=models.ForeignKey(ProductModel,on_delete=models.CASCADE)
-    quantity=models.PositiveIntegerField(default=0)
-    
-    
-    def __str__(self) -> str:
-        return f'{self.quantity} * {self.product.title}'
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(ProductModel, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+
+    def get_total_price(self):
+        return self.product.price * self.quantity
 
 class PaymentModel(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
@@ -115,14 +155,14 @@ class PaymentModel(models.Model):
     razorpay_payment_id=models.CharField(max_length=100,blank=True,null=True)
     paid=models.BinaryField()
 
-class OrderPlacedModel(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
-    customer=models.ForeignKey(CustomerModel,on_delete=models.CASCADE)
-    product=models.ForeignKey(ProductModel,on_delete=models.CASCADE)
-    ordered_date=models.DateTimeField(auto_created=True)
-    quantity=models.PositiveIntegerField(default=1)
-    status=models.CharField(max_length=50,choices=STATE_CHOICES,default='Pending')
-    payment=models.ForeignKey(PaymentModel,on_delete=models.CASCADE,default='')
-    @property
-    def total_cost(self):
-        return self.quantity * self.product.discount
+# class OrderPlacedModel(models.Model):
+#     user=models.ForeignKey(User,on_delete=models.CASCADE)
+#     customer=models.ForeignKey(CustomerModel,on_delete=models.CASCADE)
+#     product=models.ForeignKey(ProductModel,on_delete=models.CASCADE)
+#     ordered_date=models.DateTimeField(auto_created=True)
+#     quantity=models.PositiveIntegerField(default=1)
+#     status=models.CharField(max_length=50,choices=STATE_CHOICES,default='Pending')
+#     payment=models.ForeignKey(PaymentModel,on_delete=models.CASCADE,default='')
+#     @property
+#     def total_cost(self):
+#         return self.quantity * self.product.discount
