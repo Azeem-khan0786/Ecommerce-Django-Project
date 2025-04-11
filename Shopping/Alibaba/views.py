@@ -1,14 +1,17 @@
-from django.shortcuts import render,redirect
-from .models import ProductModel,Category,CustomerModel,CartItem
+from django.shortcuts import render,redirect 
+from .models import ProductModel,Category,CustomerModel ,Cart,CartItem ,OrderItem,Order ,ShippingAddress
 from django.views import View
 from .forms import RegistrationForm,LoginForm,CustomerProfileForm,ChangePasswordForm
 from django.contrib import messages
 from django.contrib.auth import login, authenticate ,logout
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy , reverse
+from django.urls import reverse_lazy , reverse 
+from django.http import JsonResponse
+from .forms import CheckoutForm 
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid # unique user_id for duplicate user
+from django.core.exceptions import ObjectDoesNotExist
 
 # update image field of ProductImage using api
 # class UpdateImage()
@@ -194,33 +197,65 @@ def view_cart(request):
     return render(request, 'Alibaba/cart.html',locals())
     
 class Checkout(View):
-    def get(self,request):
-        # if request.user.is_authenticated:
+    def get(self, request):
+        try:
+            order_items = Order.objects.filter(user=request.user, ordered=False)
+            form = CheckoutForm()
+            cart_item = CartItem.objects.filter(user=request.user)
+            return render(request, 'Alibaba/checkout.html', {
+                'form': form,
+                'order_items': order_items,
+                'cart_item': cart_item
+            })
+        except ObjectDoesNotExist:
+            messages.info(request, 'You don\'t have an active order.')
+            return redirect('checkout')
 
-        cart_item=ProductModel.objects.filter(user=request.user)
-        add=CustomerModel.objects.filter(user=request.user)
-        # client = razorpay.Client(auth=("YOUR_ID", "YOUR_SECRET"))
-        # data = { "amount": 500, "currency": "INR", "receipt": "order_rcptid_11" }
-        # payment = client.order.create(data=data)
-        # get the host
-        # create paypal form
-        host = request.get_host()
-        # dict
-        paypal_dict = {
-            'business':settings.PAYPAL_RECEIVER_EMAIL,
-            'amount' : 500,
-            'item_name' : 'Book',
-            'no_shipping':'2',
-            'invoice': str(uuid.uuid4()),
-            'currency_code': 'USD',
-            'notify_url': 'https://{}{}'.format(host,reverse("paypal-ipn")),
-            'return_url': 'https://{}{}'.format(host,reverse("payment_success")),
-            'cancel_url': 'https://{}{}'.format(host,reverse("payment_failed")),
+    def post(self, request):
+        form = CheckoutForm(request.POST)
+        try:
+            order_items = Order.objects.get(user=request.user, ordered=False)
+            if form.is_valid():
+                street_address = form.cleaned_data.get('street_address')
+                apartment_address = form.cleaned_data.get('apartment_address')
+                country = form.cleaned_data.get('country')
+                zip_code = form.cleaned_data.get('zip')
+                payment_option = form.cleaned_data.get('payment_option')
 
+                shipping_address = ShippingAddress(
+                    user=request.user,
+                    address_line=street_address,
+                    city=apartment_address,
+                    country=country,
+                    postal_code=zip_code
+                )
 
-        }
-        paypal_form = PayPalPaymentsForm(initial = paypal_dict)
-        return render(request,'Alibaba/checkout.html',locals())
+                order_items.shipping_address = shipping_address
+                order_items.save()
+
+                host = request.get_host()
+                paypal_dict = {
+                    'business': settings.PAYPAL_RECEIVER_EMAIL,
+                    'amount': 500,
+                    'item_name': 'Book',
+                    'no_shipping': '2',
+                    'invoice': str(uuid.uuid4()),
+                    'currency_code': 'USD',
+                    'notify_url': f'https://{host}{reverse("paypal-ipn")}',
+                    'return_url': f'https://{host}{reverse("payment_success")}',
+                    'cancel_url': f'https://{host}{reverse("payment_failed")}',
+                }
+
+                paypal_form = PayPalPaymentsForm(initial=paypal_dict)
+                return render(request, 'Alibaba/checkout.html', {
+                    'form': form,
+                    'paypal_form': paypal_form,
+                    'order_items': [order_items]
+                })
+
+        except ObjectDoesNotExist:
+            messages.info(request, 'You don\'t have an active order.')
+            return redirect('checkout')
 
 def remove_from_cart(request, item_id):
     user=request.user
@@ -239,4 +274,9 @@ def product_search(request):
 def payment_success(request):
     pass
 def payment_failed(request):
+    pass
+
+def productJson(request):
+    
+    
     pass

@@ -18,20 +18,19 @@ class CustomerAdmin(admin.ModelAdmin):
     'state' )
    
 admin.site.register(CustomerModel,CustomerAdmin)
-
+admin.site.register(Cart)
 class CartAdmin(admin.ModelAdmin):
    list_display=['product','quantity']
 admin.site.register(CartItem,CartAdmin)   
 
 admin.site.register(Category)
 
-class PaymentAdmin(admin.ModelAdmin):
-   list_display=['user','amount',"razorpay_order_id",'razorpay_payment_status','paid']
-admin.site.register(PaymentModel,PaymentAdmin)
+admin.site.register(Payment)
 
 # class OrderAdmin(admin.ModelAdmin):
 #    list_display=['user','customer','product','ordered_date','quantity','status','payment']
 # admin.site.register(OrderPlacedModel,OrderAdmin)       
 # 
 admin.site.register(Order)
-admin.site.register(OrderItem)            
+admin.site.register(OrderItem)          
+admin.site.register(ShippingAddress)  

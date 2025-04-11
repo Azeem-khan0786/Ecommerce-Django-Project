@@ -43,4 +43,5 @@ urlpatterns = [
     path('search/',views.product_search, name='product_search'),
     path('removecart/<int:item_id>',views.remove_from_cart,name='removecart'),
     path('paypal/', include("paypal.standard.ipn.urls")),  # ins=clude paypal view`s url`
+    path('productJson/',views.productJson,name='productJson'),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

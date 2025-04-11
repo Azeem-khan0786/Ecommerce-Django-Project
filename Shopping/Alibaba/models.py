@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.contrib.auth import get_user_model
+from datetime import datetime
 # Create your models here.
 Catagories_Choice=(('PNT','pents'),
                    ('ST','Shirts'),
@@ -58,7 +59,7 @@ class CustomerModel(models.Model):
     state = models.CharField(max_length=2, choices=STATE_CHOICES)
 
     def __str__(self): # Here
-        return self.name + " " + self.location
+        return self.name + " " + self.locationOrderItem
     class Meta:
         unique_together=('user',)
 # method for create category        
@@ -100,9 +101,24 @@ class Order(models.Model):
     shipping_adress = models.TextField(max_length=255)
     amount_paid= models.DecimalField(max_digits=5,decimal_places=2)
     shipping_date = models.DateTimeField(auto_now_add=True)
+    ordered_date = models.DateTimeField(default=datetime.now(), blank=True)
+    ordered = models.BooleanField(default=False)
+    shipping_address = models.ForeignKey(
+        'ShippingAddress', related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
+    billing_address = models.ForeignKey(
+        'ShippingAddress', related_name='billing_address', on_delete=models.SET_NULL, blank=True, null=True)
+    payment = models.ForeignKey(
+        'Payment', on_delete=models.SET_NULL, blank=True, null=True)
+    # coupon = models.ForeignKey(
+    #     'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
+    being_delivered = models.BooleanField(default=False)
+    received = models.BooleanField(default=False)
+    refund_requested = models.BooleanField(default=False)
+    refund_granted = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Order place by {self.user}"
+    
 # model OrderItem for indivitual item
 class OrderItem(models.Model):
     order = models.ForeignKey(Order,on_delete=models.CASCADE)
@@ -115,7 +131,7 @@ class OrderItem(models.Model):
 
 class ShippingAddress(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    # order = models.OneToOneField(Order, on_delete=models.CASCADE)
     address_line = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=10)
@@ -123,9 +139,8 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return f'{self.address_line}, {self.city}'    
-   
-    
 
+# models for add cart
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -135,25 +150,28 @@ class Cart(models.Model):
 
     def get_cart_total(self):
         return sum(item.get_total_price() for item in self.items.all())
-# models for add cart 
+
 class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(ProductModel, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.name}"
+        return f"{self.quantity} x {self.product.title}"
 
     def get_total_price(self):
         return self.product.price * self.quantity
 
-class PaymentModel(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
-    amount=models.FloatField()
-    razorpay_order_id=models.CharField(max_length=100,blank=True,null=True)
-    razorpay_payment_status=models.CharField(max_length=100,blank=True,null=True)
-    razorpay_payment_id=models.CharField(max_length=100,blank=True,null=True)
-    paid=models.BinaryField()
+class Payment(models.Model):
+    stripe_charge_id = models.CharField(max_length=50)
+    user = models.ForeignKey(User,
+                             on_delete=models.SET_NULL, blank=True, null=True)
+    amount = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username
 
 # class OrderPlacedModel(models.Model):
 #     user=models.ForeignKey(User,on_delete=models.CASCADE)

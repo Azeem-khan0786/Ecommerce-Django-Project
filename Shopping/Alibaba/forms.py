@@ -2,10 +2,17 @@ from django import forms
 from .models import ProductModel,CustomerModel
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,PasswordChangeForm
 from django.contrib.auth.models import User
+
+from django_countries.fields import CountryField
+from django_countries.widgets import CountrySelectWidget
 # from captcha.fields import ReCaptchaField 
 # from captcha.widgets import ReCaptchaV2Checkbox 
 
-#Registration form 
+PAYMENT_CHOICES = (
+    ('S','Stripe'),
+    ('P','Paypal'),
+)
+#Registration f
 class RegistrationForm(UserCreationForm):
     class Meta:
         model=User
@@ -57,4 +64,24 @@ class ChangePasswordForm(PasswordChangeForm):
     )
                                  
                                  
-            
+# CheckOutForm            
+class CheckoutForm(forms.Form):
+    street_address = forms.CharField(widget=forms.TextInput(attrs={
+        'placeholder': 'Jama masjid',
+        'class': 'form-control'
+    }))
+    apartment_address = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'placeholder': 'Apartment or suite',
+        'class': 'form-control'
+    }))
+    country = CountryField(blank_label='(select country)').formfield(widget=CountrySelectWidget(attrs={
+        'class': 'custom-select d-block w-100'
+
+    }))
+    zip = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
+    same_shipping_address = forms.BooleanField(required=False)
+    save_info = forms.BooleanField(required=False)
+    payment_option = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
