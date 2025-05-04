@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import *
+from Alibaba.models import *
 
 # admin email =azeemkhan@xyz.in with 1234 username =khan
 # Register your models here.

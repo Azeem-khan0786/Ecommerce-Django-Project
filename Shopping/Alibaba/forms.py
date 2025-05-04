@@ -1,5 +1,5 @@
 from django import forms
-from .models import ProductModel,CustomerModel
+from .models import ProductModel,CustomerModel,Category,ShippingAddress
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,PasswordChangeForm
 from django.contrib.auth.models import User
 
@@ -9,8 +9,8 @@ from django_countries.widgets import CountrySelectWidget
 # from captcha.widgets import ReCaptchaV2Checkbox 
 
 PAYMENT_CHOICES = (
-    ('S','Stripe'),
-    ('P','Paypal'),
+    ('S','stripe'),
+    ('P','paypal'),
 )
 #Registration f
 class RegistrationForm(UserCreationForm):
@@ -21,7 +21,6 @@ class RegistrationForm(UserCreationForm):
         widgets={
            
             'email':forms.EmailInput(attrs={'class':'form-control','placeholder':'Enter your email'}),
-           
 
         }
 
@@ -30,6 +29,11 @@ class LoginForm(forms.Form):
     password = forms.CharField(max_length=63, widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'password'}))
 
     # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
+# Category form
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model =  Category 
+        fields = '__all__'   
      
 class CustomerProfileForm(forms.ModelForm):
     class Meta:
@@ -85,3 +89,8 @@ class CheckoutForm(forms.Form):
     save_info = forms.BooleanField(required=False)
     payment_option = forms.ChoiceField(
         widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
+    
+class ShippingAddressForm(forms.ModelForm):
+    class Meta:
+        model = ShippingAddress
+        exclude = ('user',)

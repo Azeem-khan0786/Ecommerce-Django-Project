@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap4",
     'paypal.standard.ipn', # paypal app intalled
+    'rest_framework',
   
 
 ]
@@ -73,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'Alibaba.context_processors.get_items_count',
             ],
         },
     },

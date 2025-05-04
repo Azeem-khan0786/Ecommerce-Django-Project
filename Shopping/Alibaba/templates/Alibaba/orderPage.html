@@ -1,0 +1,62 @@
+{% extends "Alibaba/base.html" %}
+{% load static %}
+{% block title %}
+Order View
+{% endblock %}
+{% block content %}  
+<div class="container mt-5">
+    <h2 class="mb-4">Order Summary</h2>
+    {% for order in orders  %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Order by: {{ order.user.username }}</h5>
+            <p><strong>Email:</strong> {{ order.email }}</p>
+            <p><strong>Order Date:</strong> {{ order.ordered_date }}</p>
+            <p><strong>Shipping Date:</strong> {{ order.shipping_date }}</p>
+            <p><strong>Amount Paid:</strong> ${{ order.amount_paid }}</p>
+            <p><strong>Status:</strong> 
+                {% if order.received %}
+                    <span class="badge bg-success">Delivered</span>
+                {% elif order.being_delivered %}
+                    <span class="badge bg-warning text-dark">Being Delivered</span>
+                {% elif order.ordered %}
+                    <span class="badge bg-primary">Ordered</span>
+                {% else %}
+                    <span class="badge bg-secondary">Pending</span>
+                {% endif %}
+            </p>
+
+            {% if order.shipping_address %}
+                <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
+            {% endif %}
+            {% if order.billing_address %}
+                <p><strong>Billing Address:</strong> {{ order.billing_address }}</p>
+            {% endif %}
+
+            {% if order.refund_requested %}
+                <p class="text-danger"><strong>Refund Requested</strong></p>
+            {% endif %}
+            {% if order.refund_granted %}
+                <p class="text-success"><strong>Refund Granted</strong></p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <h4>Order Items</h4>
+    <ul class="list-group">
+        {% for item in order.items.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ item.product.name }} (x{{ item.quantity }})
+                <span>${{ item.get_total_item_price }}</span>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No items in this order.</li>
+        {% endfor %}
+    </ul>
+
+    <div class="mt-4">
+        <h5>Total: ${{ order.total_amount_of_order }}</h5>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

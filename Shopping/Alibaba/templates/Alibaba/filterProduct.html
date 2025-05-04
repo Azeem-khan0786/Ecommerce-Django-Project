@@ -1,0 +1,27 @@
+<!-- Button to open sidebar -->
+<button id="filterToggleBtn" class="toggle-btn">Filter Products</button>
+
+<!-- Sidebar -->
+<div id="filterSidebar" class="sidebar">
+    <h3>Filter By</h3>
+    
+    <div class="filter-section">
+        <h4>Price</h4>
+        <input type="range" min="0" max="1000" step="10" id="priceRange">
+        <p>Up to $<span id="priceValue">500</span></p>
+    </div>
+    
+    <div class="filter-section">
+        <h4>Size</h4>
+        <label><input type="checkbox" name="size" value="S"> Small</label><br>
+        <label><input type="checkbox" name="size" value="M"> Medium</label><br>
+        <label><input type="checkbox" name="size" value="L"> Large</label>
+    </div>
+    
+    <div class="filter-section">
+        <h4>Color</h4>
+        <label><input type="checkbox" name="color" value="red"> Red</label><br>
+        <label><input type="checkbox" name="color" value="blue"> Blue</label><br>
+        <label><input type="checkbox" name="color" value="green"> Green</label>
+    </div>
+</div>

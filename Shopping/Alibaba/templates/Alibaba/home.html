@@ -3,136 +3,66 @@
 {% block title %}
 Home Page
 {% endblock %}
-
-
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/categoryButton.css' %}">
+<link rel="stylesheet" href="{% static 'css/filterProduct.css' %}">
+{% endblock %}
 {% block content %}
-    {% include "Alibaba/navbar.html" %}
 
-    {% comment %} {% for mess in messages %}
-    <div><h5 class="text-dark text-center d-block p-3 bg-warning h-25"  >{{mess}}</h5></div>
-    {% endfor %} {% endcomment %}
-    
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="False" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarText">
-          <ul class="navbar-nav mr-auto">
-            {% if user.is_authenticated %}
-            
-            <li class="nav-item">
-              
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-              </li>
-      
-            {% else %}
-      
-            {% comment %} <li class="nav-item">
-              <a class="nav-link" href="/login">Login</a>
-            </li> {% endcomment %}
-      
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
-    {% include "Alibaba/slidder-content.html" %}
-    <hr style="height: 2px; background-color: rgb(160, 18, 18);">
-    
-    <!-- Product details -->
-    <div class="container-fluid">
-        <div class="row bg-primary p-2 text-center text-white ">
-            <h3 class="">Products Details </h3>
-            <small>Clothing (also known as clothes, garments, dress, apparel, or attire) is any item worn on the body. Typically, clothing is made of fabrics or textiles, but over time it has included garments made from animal skin and other thin sheets of materials and natural products found in the environment, put together. The wearing of clothing is mostly restricted to human beings and is a feature of all human societies. The amount and type of clothing worn depends on gender, body type, social factors, and geographic considerations. Garments cover the body, footwear covers the feet, gloves cover the hands, while hats and headgear cover the head, and underwear covers the private parts.</small>
+{% include "Alibaba/navbar.html" %}
+{% comment %} {% include 'Alibaba/filterProduct.html' %} {% endcomment %}
 
-        </div>
-    </div>
-    <br><br>
-    {% for cat in categories  %}
-    <a href='/'>{{cat.name}}</a>
-    {% endfor %}
-    <div class="container">
+
+{% comment %} {% for mess in messages %}
+<div><h5 class="text-dark text-center d-block p-3 bg-warning h-25"  >{{mess}}</h5></div>
+{% endfor %} {% endcomment %}
+
+{% include "Alibaba/slidder-content.html" %}
+<hr style="height: 2px; background-color: rgb(160, 18, 18);">
+
+<!-- Product details -->
+ {% include "Alibaba/filter.html" %}
+<div class="container-fluid">
+ 
       <div class="row justify-content-center">
-          <div class="col-lg-3">
-              <div class=" text-center">
-                  
-  
-                  {% for category in categories %}
-                  <a href="/?category={{ category.id }}" class="">
-                      {{ category.name }}
-                  </a>
-                  {% endfor %}
-              </div>
-          </div>
+       <div class="category-bar text-center">
+          {% for category in categories %}
+              <a href="/?category={{ category.id }}" class="category-btn">
+                  {{ category.name }}
+              </a>
+          {% endfor %}
       </div>
-  </div>
-    <div class="container-fluid">
-      
-        <div class="row">
-    
-            <div class="col-md-3">
-                <div class="card text-center mb-3" style="max-width: 18rem;">
-                    <div class="card-header">Man's pents</div>
-                    <div class="card-body">
-                       <p class="card-text"> <img src="{% static '/image/p1.jpg' %}" alt=""> </p>
-                    </div>
-                    <h4>Levi's Pent</h4>
-                    <a href="{% url "category" "PNT" %}">Man's jeans pants2020 </a>
-
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center mb-3" style="max-width: 18rem;">
-                    <div class="card-header">Man's Shirts</div>
-                    <div class="card-body">
-                      <p class="card-text"><img src="{% static '/image/s1.jpg' %}" alt=""></p>
-                    </div>
-                    <h4>Levi's Shirts</h4>
-                    <a href="{% url "category" "ST" %}">Man's Shirts shirts2020 </a>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center  mb-3" style="max-width: 18rem;">
-                    <div class="card-header">Man's balts</div>
-                    <div class="card-body">
-
-                      <p class="card-text"><img src="{% static '/image/so1.jpg' %}" alt=""></p>
-                    </div>
-                    <h4>Levi's Woddenbelt</h4>
-                    <a href="{% url "category" "WA" %}">Man's Woddenbelt pants2020 </a>
-                </div>
-            </div>
-            {% for x in products %}
-       
-            <div class="col-md-3 text-center">
+      </div>
+</div>
+ in
+  <div class="container-fluid">
+      <div class="row">
+        <!-- Filter Sidebar on the left -->
+        
+         {% for x in products %}
+           <div class="col-md-3 text-center">
               <div class="card text-center mb-3" style="max-width: 18rem;">
-                
-                <div class="product-image">
+                 <div class="product-image">
                     <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
-                </div>
+                 </div>
                 <div class="product-details text-dark ">
                     <div class="text-center" > {{x.id}}.{{x.title}}</div>
                     <div class="product-price "><small class="text-color m-1">Retail Price </small>${{x.selling_price}}</div>
                     <div class="product-price"><small class="text-color m-1">Available Discount </small>${{x.discount}}</div>
                     <button class="btn btn-primary m-1"> <a href="{% url 'productDetail' x.pk  %}" style="text-decoration: none; color: white;" >Visit here Now</a></button>
-
-
-
-
                 </div>
             </div>
         </div>
 
     
-  {% endfor %}
+      {% endfor %}
 
-        </div>
     </div>
-    {{categories}}
-    {% include "Alibaba/Pagination.html" %}
-    {% include "Alibaba/footer.html" %}
-
+</div>
+{% include "Alibaba/Pagination.html" %}
+{% include "Alibaba/footer.html" %}
 {% endblock %} 
+{% block js %}
+<script src="{% static 'js/filterProduct.js' %}"></script>
+{% endblock  %}
 
