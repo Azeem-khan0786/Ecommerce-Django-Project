@@ -252,7 +252,7 @@ button:hover {
             <p><strong>Order ID:</strong> {{ order.id }}</p>
             <p><strong>Total Amount:</strong> ${{ order.total_amount_of_order }}</p>
             <p><strong>Payment Option:</strong> {{ payment_option|title }}</p>
-            <p><strong>Billing Address:</strong> {{ order.billing_address }}</p>
+            <p><strong>Shipping Address:</strong> {{ shipping_address.get_address }}</p>
         </div>
     </div>
 

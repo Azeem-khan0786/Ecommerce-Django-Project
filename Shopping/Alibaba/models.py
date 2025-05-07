@@ -110,8 +110,25 @@ class ShippingAddress(models.Model):
     address_line = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=10)
+    state = models.CharField(max_length=100,blank=True,null=True)
     country = models.CharField(max_length=100)    
+    phone_number = models.CharField(max_length=20,blank=True,null=True)
+    def get_shipping_address(self):
+        return f'{self.address_line}  {self.city} {self.postal_code} {self.country}'
+    
 
+# BillingAddress
+class BillingAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    address_line = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=10)
+    state = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)    
+    phone_number = models.CharField(max_length=20)
+    def get_billing_address(self):
+        return f'{self.address_line}  {self.city} {self.postal_code} {self.country}'
+    
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.EmailField(max_length=30)
@@ -122,7 +139,7 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(
         ShippingAddress, related_name='shipping_orders', on_delete=models.SET_NULL, blank=True, null=True)
     billing_address = models.ForeignKey(
-        ShippingAddress, related_name='billing_orders', on_delete=models.SET_NULL, blank=True, null=True)
+        BillingAddress, related_name='billing_orders', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey(
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     # coupon = models.ForeignKey(

@@ -20,43 +20,57 @@ Home Page
 {% include "Alibaba/slidder-content.html" %}
 <hr style="height: 2px; background-color: rgb(160, 18, 18);">
 
-<!-- Product details -->
- {% include "Alibaba/filter.html" %}
+<!-- Category Bar -->
 <div class="container-fluid">
- 
-      <div class="row justify-content-center">
-       <div class="category-bar text-center">
-          {% for category in categories %}
-              <a href="/?category={{ category.id }}" class="category-btn">
-                  {{ category.name }}
-              </a>
-          {% endfor %}
-      </div>
-      </div>
+    <div class="row justify-content-center">
+        <div class="category-bar text-center">
+            {% for category in categories %}
+                <a href="/?category={{ category.id }}" class="category-btn">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
 </div>
- in
-  <div class="container-fluid">
-      <div class="row">
-        <!-- Filter Sidebar on the left -->
-        
-         {% for x in products %}
-           <div class="col-md-3 text-center">
-              <div class="card text-center mb-3" style="max-width: 18rem;">
-                 <div class="product-image">
-                    <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
-                 </div>
-                <div class="product-details text-dark ">
-                    <div class="text-center" > {{x.id}}.{{x.title}}</div>
-                    <div class="product-price "><small class="text-color m-1">Retail Price </small>${{x.selling_price}}</div>
-                    <div class="product-price"><small class="text-color m-1">Available Discount </small>${{x.discount}}</div>
-                    <button class="btn btn-primary m-1"> <a href="{% url 'productDetail' x.pk  %}" style="text-decoration: none; color: white;" >Visit here Now</a></button>
-                </div>
+
+<!-- Main Content with Sidebar -->
+<div class="container-fluid">
+    
+        <div class="col-12 mb-2">
+            <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#filterSidebar" id="toggleFilterBtn">
+                Toggle Filter
+              </button>
+        </div>
+        <div class="row w-100">
+        <!-- Sidebar -->
+        <div class="col-md-3 collapse show" id="filterSidebar">
+            <div class="card p-3">
+                {% include "Alibaba/filter.html" %}
             </div>
         </div>
 
-    
-      {% endfor %}
-
+<!-- Product Grid -->
+        <div id="productGrid" class="col-md-9">
+            <div class="row">
+                {% for x in products %}
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="card text-center" style="max-width: 18rem;">
+                            <div class="product-image">
+                                <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
+                            </div>
+                            <div class="product-details text-dark">
+                                <div class="text-center">{{x.id}}.{{x.title}}</div>
+                                <div class="product-price"><small class="text-color m-1">Retail Price </small>${{x.selling_price}}</div>
+                                <div class="product-price"><small class="text-color m-1">Available Discount </small>${{x.discount}}</div>
+                                <button class="btn btn-primary m-1">
+                                    <a href="{% url 'productDetail' x.pk %}" style="text-decoration: none; color: white;">Visit here Now</a>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 {% include "Alibaba/Pagination.html" %}
@@ -64,5 +78,21 @@ Home Page
 {% endblock %} 
 {% block js %}
 <script src="{% static 'js/filterProduct.js' %}"></script>
-{% endblock  %}
+<script>
+    $('#toggleFilterBtn').on('click', function () {
+        $('#filterSidebar').on('shown.bs.collapse', function () {
+            $('#productGrid').addClass('col-md-9');
+        });
+
+        $('#filterSidebar').on('hidden.bs.collapse', function () {
+            $('#productGrid').addClass('col-md-12');
+        });
+    });
+</script>
+
+{% endblock  %}<!-- Bootstrap CSS -->
+
+
+
+
 

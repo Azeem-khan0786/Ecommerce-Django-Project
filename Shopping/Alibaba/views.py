@@ -276,7 +276,7 @@ class Checkout(View):
                 #     'same_shipping_address')
                 # save_info = form.cleaned_data.get('save_info')
                 payment_option = form.cleaned_data.get('payment_option')
-                billing_address = ShippingAddress(
+                billing_address = BillingAddress(
                     user=self.request.user,
                     address_line=street_address,
                     city=apartment_address,
@@ -300,7 +300,10 @@ class Checkout(View):
         except ObjectDoesNotExist:
             messages.error(self.request, "You do not have an active order")
             return redirect("order-summary")
-        
+        return render(self.request,'Alibaba/payment.html',
+                      {'form':form,'order':order,
+                       'shipping_address':ShippingAddress.objects.filter(user = self.request.user).first()
+                                                           })    
 # Payment method using paypal
 class PaymentView(View):
     # get payment page with uncomplete order of logged_in user

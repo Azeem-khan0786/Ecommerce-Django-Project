@@ -29,19 +29,22 @@
   <div class="row">
     <!-- Billing Info -->
     <div class="col-md-7 mb-4">
-      <div class="card p-3 shadow-sm">
-        <h3>Shipping Adrress</h3>
-        <h5 class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-muted">
-            
-            {{shipping_adress.address_line}} in {{shipping_adress.city}} {{shipping_adress.country}} {{shipping_adress.postal_code}}
-            {% comment %} {% for address in shipping_adress %}
-                 {{address.address_line}} in {{address.city}} {{address.country}} {{address.postal_code}}
+      <div class="card p-3  shadow-sm">
+          <h3>Shipping Adrress</h3>
+            <h5 class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-muted">
+                
+                {{shipping_adress.address_line}} in {{shipping_adress.city}} {{shipping_adress.country}} {{shipping_adress.postal_code}}
+                {% comment %} {% for address in shipping_adress %}
+                    {{address.address_line}} in {{address.city}} {{address.country}} {{address.postal_code}}
 
-           {% endfor %} {% endcomment %}
-          </span>
-           <a style="text-decoration: none; font-size: 14px;" href="{% url 'address' %}">change address</a>  
-        </h5>
+              {% endfor %} {% endcomment %}
+              </span>
+              <a style="text-decoration: none; font-size: 14px;" href="{% url 'address' %}">change address</a>  
+            </h5>
+          </div>      
+      <div class="card p-3 shadow-sm">
+        
         
         <h4 class="mb-3">Billing Address</h4>
         <form method="POST" class="needs-validation" novalidate>
@@ -49,10 +52,6 @@
           <div class="mb-3">
             <label>Address</label>
             {{ form.street_address }}
-          </div>
-          <div class="mb-3">
-            <label>Address 2 <span class="text-muted">(Optional)</span></label>
-            {{ form.apartment_address }}
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
@@ -70,10 +69,19 @@
               <div class="invalid-feedback">Please provide a valid city.</div>
             </div>
             <div class="col-md-6 mb-3">
+              <label>State</label>
+              {{ form.state }}
+              
+              <label>Phone</label>
+              {{ form.phone_number }}
+              
+            </div>
+            <div class="col-md-6 mb-3">
               <label>Zip</label>
               {{ form.zip }}
               <div class="invalid-feedback">Zip code required.</div>
             </div>
+
           </div>
 
           <div class="form-check my-2">

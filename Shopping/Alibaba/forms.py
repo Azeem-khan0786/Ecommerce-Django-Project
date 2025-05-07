@@ -85,6 +85,12 @@ class CheckoutForm(forms.Form):
     zip = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control'
     }))
+    state = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
+    phone_number = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
     same_shipping_address = forms.BooleanField(required=False)
     save_info = forms.BooleanField(required=False)
     payment_option = forms.ChoiceField(

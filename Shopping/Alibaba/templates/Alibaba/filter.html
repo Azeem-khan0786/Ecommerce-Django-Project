@@ -1,28 +1,19 @@
-<div class="sidebar">
-    Filter buttin
-    <button class="toggle-btn" onclick="toggleSidebar()">Filter 🔍</button>
-
-    <div id="filterForm" class="filter-form">
-        <form method="GET" action="">
-            <label for="category">Category:</label>
-            <input type="text" name="category" id="category" value="{{ request.GET.category }}">
-
-            <label for="min_price">Min Price:</label>
-            <input type="number" name="min_price" id="min_price" value="{{ request.GET.min_price }}">
-
-            <label for="max_price">Max Price:</label>
-            <input type="number" name="max_price" id="max_price" value="{{ request.GET.max_price }}">
-
-            <label for="available">Availability:</label>
-            <select name="available" id="available">
-                <option value="" {% if request.GET.available == "" %}selected{% endif %}>All</option>
-                <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>In Stock</option>
-                <option value="false" {% if request.GET.available == "false" %}selected{% endif %}>Out of Stock</option>
-            </select>
-
-            <button type="submit">Apply Filter</button>
-        </form>
-    </div>
-</div>
-
+<!-- filter.html -->
+<form method="GET" action="">
     
+
+    <label for="min_price">Min Price:</label>
+    <input type="number" name="min_price" id="min_price" value="{{ request.GET.min_price }}">
+
+    <label for="max_price">Max Price:</label>
+    <input type="number" name="max_price" id="max_price" value="{{ request.GET.max_price }}">
+
+    <label for="available">Availability:</label>
+    <select name="available" id="available">
+        <option value="" {% if request.GET.available == "" %}selected{% endif %}>All</option>
+        <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>In Stock</option>
+        <option value="false" {% if request.GET.available == "false" %}selected{% endif %}>Out of Stock</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary mt-2">Apply Filter</button>
+</form>
