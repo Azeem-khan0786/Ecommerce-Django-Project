@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect ,get_object_or_404
-from .models import ProductModel,Category,CustomerModel,OrderItem,Order ,ShippingAddress,CartItem
+from .models import ProductModel,Category,CustomerModel,OrderItem,Order ,Address,CartItem
 from django.views import View
 from .forms import RegistrationForm,LoginForm,CustomerProfileForm,ChangePasswordForm
 from django.contrib import messages
@@ -7,7 +7,7 @@ from django.contrib.auth import login, authenticate ,logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy , reverse 
 from django.http import JsonResponse
-from .forms import CheckoutForm ,ShippingAddressForm
+from .forms import CheckoutForm ,AddressForm
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
 import uuid # unique user_id for duplicate user
@@ -241,18 +241,22 @@ class Checkout(View):
     def get(self, *args, **kwargs):
         try:
             order = Order.objects.get(user=self.request.user, ordered=False)
-            address_id =self.request.session.get('seleceted_id')
+            address_id =self.request.session.get('selected_address_id') 
             if address_id:
-                shipping_adress = ShippingAddress.objects.get(id=address_id,user=self.request.user)
-
+                print('address_id ' , address_id)
+                shipping_address = Address.objects.get(id=address_id,user=self.request.user)
             else:
-                shipping_adress = ShippingAddress.objects.filter(user=self.request.user).first()
+                shipping_address = Address.objects.filter(user=self.request.user).first()
+            
+            # shipping_address = Address.objects.filter(user=self.request.user, address_type='shipping')
+            billing_address = Address.objects.filter(user=self.request.user,address_type = 'billing').first()
             form = CheckoutForm()
             context = {
                 'form': form,
                 # 'couponform': CouponForm(),
                 'order': order,
-                'shipping_adress':shipping_adress,
+                'shipping_address':shipping_address,
+                'billing_address':billing_address,
                 # 'DISPLAY_COUPON_FORM': True
             }
             return render(self.request, "Alibaba/checkout.html", context)
@@ -267,25 +271,23 @@ class Checkout(View):
             order = Order.objects.get(user=self.request.user, ordered=False)
             print(self.request.POST)
             if form.is_valid():
-                street_address = form.cleaned_data.get('street_address')
-                apartment_address = form.cleaned_data.get('apartment_address')
-                country = form.cleaned_data.get('country')
-                zip = form.cleaned_data.get('zip')
-                # add functionality for these fields
-                # same_shipping_address = form.cleaned_data.get(
-                #     'same_shipping_address')
-                # save_info = form.cleaned_data.get('save_info')
                 payment_option = form.cleaned_data.get('payment_option')
-                billing_address = BillingAddress(
-                    user=self.request.user,
-                    address_line=street_address,
-                    city=apartment_address,
-                    country=country,
-                    postal_code=zip,
-                    
-                )
-                billing_address.save()
-                order.billing_address = billing_address
+
+                address_id =self.request.session.get('selected_address_id') 
+                shipping_address = Address.objects.get(id=address_id, user=self.request.user)
+                # else:
+                #     shipping_address = Address(
+                #     user=self.request.user,
+                #     address_line1=form.cleaned_data.get('street_address'),
+                #     city=form.cleaned_data.get('apartment_address'),
+                #     country=form.cleaned_data.get('country'),
+                #     postal_code=form.cleaned_data.get('zip'),
+                #     state=form.cleaned_data.get('state'),
+                #     address_type ='shpping',
+                #     phone_number=form.cleaned_data.get('phone_number'),
+                #     )
+                #     shipping_address.save()
+                order.shipping_address = shipping_address
                 order.save()
 
                 # add redirect to the selected payment option
@@ -302,43 +304,74 @@ class Checkout(View):
             return redirect("order-summary")
         return render(self.request,'Alibaba/payment.html',
                       {'form':form,'order':order,
-                       'shipping_address':ShippingAddress.objects.filter(user = self.request.user).first()
+                    #    'shipping_address':shipping_address
                                                            })    
 # Payment method using paypal
 class PaymentView(View):
     # get payment page with uncomplete order of logged_in user
-    def get(self,request,payment_option):
-        order =Order.objects.get(user=self.request.user, ordered=False)       
-        if order.billing_address:
-            context ={'order':
-                      order,
-                      'payment_option':payment_option}
-            return render(request,'Alibaba/payment.html',context)
-        else:
-            messages.warning(self.request,"Your Order don`t have billing_address ")
-            return redirect('checkout')
+    def get(self, request, payment_option):
+        try:
+            order = Order.objects.get(user=request.user, ordered=False)
+        except Order.DoesNotExist:
+            messages.error(request, "No active order found.")
+            return redirect('cart')  # or wherever appropriate
         
-    def post(self,request,payment_option):
-            order = Order.objects.get(user=self.request.user,ordered =False)
-            host = request.get_host()
-            invoice_id = str(uuid.uuid4()) # unique for each transaction
-            paypal_dict={
-                'business': settings.PAYPAL_RECEIVER_EMAIL,
-                'amount': order.total_amount_of_order(),
-                'item_name': f"Order #{order.id}",
-                'invoice': invoice_id,
-                'currency_code': 'USD',
-                'notify_url': f"http://{host}{reverse('paypal-ipn')}",
-                'return_url': f"http://{host}{reverse('payment_success')}",
-                'cancel_url': f"http://{host}{reverse('payment_failed')}",
-            }
-            paypal_form = PayPalPaymentsForm(initial = paypal_dict)
-            # assign the payment to the order if payment_success to payment_success() view
-            
+        host = request.get_host()
+        invoice_id = str(uuid.uuid4())  # unique invoice
 
-            return render(request,'Alibaba/payment.html',{''
-            'order':order,'paypal_form':paypal_form,
-                })
+        paypal_dict = {
+            'business': settings.PAYPAL_RECEIVER_EMAIL,
+            'amount': order.total_amount_of_order(),  # Ensure this method returns Decimal
+            'item_name': f"Order #{order.id}",
+            'invoice': invoice_id,
+            'currency_code': 'USD',
+            'notify_url': f"http://{host}{reverse('paypal-ipn')}",
+            'return_url': f"http://{host}{reverse('payment_success')}",
+            'cancel_return': f"http://{host}{reverse('payment_failed')}",
+        }
+
+        paypal_form = PayPalPaymentsForm(initial=paypal_dict)
+        if order.shipping_address:
+            context = {
+                'order': order,
+                'payment_option': payment_option,
+                'paypal_form': paypal_form
+            }
+            return render(request, 'Alibaba/payment.html', context)
+        else:
+            messages.warning(request, "Your order doesn't have a shipping address.")
+            return redirect('checkout')
+
+    # def post(self, request, payment_option):
+    #     try:
+    #         order = Order.objects.get(user=request.user, ordered=False)
+    #     except Order.DoesNotExist:
+    #         messages.error(request, "No active order found.")
+    #         return redirect('cart')
+
+    #     host = request.get_host()
+    #     invoice_id = str(uuid.uuid4())  # unique invoice
+
+    #     paypal_dict = {
+    #         'business': settings.PAYPAL_RECEIVER_EMAIL,
+    #         'amount': order.total_amount_of_order(),  # Ensure this method returns Decimal
+    #         'item_name': f"Order #{order.id}",
+    #         'invoice': invoice_id,
+    #         'currency_code': 'USD',
+    #         'notify_url': f"http://{host}{reverse('paypal-ipn')}",
+    #         'return_url': f"http://{host}{reverse('payment_success')}",
+    #         'cancel_return': f"http://{host}{reverse('payment_failed')}",
+    #     }
+
+    #     paypal_form = PayPalPaymentsForm(initial=paypal_dict)
+
+    #     context = {
+    #         'order': order,
+    #         'paypal_form': paypal_form,
+    #         'payment_option': payment_option
+    #     }
+
+    #     return render(request, 'Alibaba/payment.html', context)
 
 
 def remove_from_cart(request, item_id):
@@ -365,29 +398,35 @@ def payment_failed(request):
 
 
 
-class BillingAddress(View):
+class AddressView(View):
     def get(self, request):
-        form = ShippingAddressForm()
-        address = ShippingAddress.objects.filter(user=request.user)
-        return render(request, 'Alibaba/address.html', context={'form': form, 'address': address})
-
+        form = AddressForm()
+        shipping_address = Address.objects.filter(
+        user=request.user,
+        address_type='shipping'  # Note: use the actual value stored in your DB
+         )
+        
+        billing_address = Address.objects.filter(user=request.user,address_type = 'billing').first()
+        return render(request, 'Alibaba/address.html', context={'form': form, 'shipping_address': shipping_address,'billing_address':billing_address})
+    
     def post(self, request):
-        form = ShippingAddressForm(request.POST)
+        form = AddressForm(request.POST)
         if form.is_valid():
             address = form.save(commit=False)
             address.user = request.user
             address.save()
             return redirect('address')  # make sure this URL name exists
-        address = ShippingAddress.objects.filter(user=request.user)
+        address = Address.objects.filter(user=request.user)
         return render(request, 'Alibaba/address.html', context={'form': form, 'address': address})
 
 # select Address for checkout    
 class SelectAddress(View):
     def post(self,request):
-        selected_add_id =request.POST.get('selected_address')   
-        if selected_add_id:
-            address = get_object_or_404(ShippingAddress,id=selected_add_id,user=request.user) 
-            request.session['seleceted_id']=address.id
+        selected_address_id =request.POST.get('shipping_address')   
+        print('selected_address_id',selected_address_id)
+        if selected_address_id:
+            address = get_object_or_404(Address,id=selected_address_id,user=request.user) 
+            request.session['selected_address_id']=address.id
             return redirect('checkout')
         return redirect('address')
 

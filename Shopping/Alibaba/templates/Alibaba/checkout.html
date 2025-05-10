@@ -30,11 +30,19 @@
     <!-- Billing Info -->
     <div class="col-md-7 mb-4">
       <div class="card p-3  shadow-sm">
-          <h3>Shipping Adrress</h3>
+          <h5>Billing Adrress</h5>
+            <h5 class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-muted">
+                {{billing_address.address_line1}} in {{billing_address.city}} {{billing_address.state}} {{billing_address.postal_code}} {{billing_address.country}} {{billing_address.phone_number}}
+              </span>
+            </h5>
+          </div> 
+      <div class="card p-3  shadow-sm">
+          <h5>Shipping Adrress</h5>
             <h5 class="d-flex justify-content-between align-items-center mb-3">
               <span class="text-muted">
                 
-                {{shipping_adress.address_line}} in {{shipping_adress.city}} {{shipping_adress.country}} {{shipping_adress.postal_code}}
+                {{shipping_address.recipeint_name}} {{shipping_address.address_line1}} in {{shipping_address.city}} {{shipping_address.state}} {{shipping_address.postal_code}} {{shipping_address.country}} {{shipping_address.phone_number}}
                 {% comment %} {% for address in shipping_adress %}
                     {{address.address_line}} in {{address.city}} {{address.country}} {{address.postal_code}}
 
@@ -46,7 +54,7 @@
       <div class="card p-3 shadow-sm">
         
         
-        <h4 class="mb-3">Billing Address</h4>
+        <h4 class="mb-3">Shipping Address</h4>
         <form method="POST" class="needs-validation" novalidate>
           {% csrf_token %}
           <div class="mb-3">

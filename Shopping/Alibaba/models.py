@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from datetime import datetime
+from django.core.validators import RegexValidator
 # Create your models here.
 Catagories_Choice=(('PNT','pents'),
                    ('ST','Shirts'),
@@ -104,31 +105,40 @@ class ProductModel(models.Model):
     def get_products_by_category(category_id):
         return ProductModel.objects.filter(category_id=category_id)
     
-# ShippingAddress
-class ShippingAddress(models.Model):
+# Address for both ShippingAddress and BillingAddress
+Address_choice=(('shipping','ShippingAddress'),('billing','BillingAddress'))
+
+class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    address_line = models.CharField(max_length=255)
+    address_type = models.CharField(max_length=255,choices=Address_choice)
+    address_line1 = models.CharField(max_length=255)
+    address_line2 = models.CharField(max_length=255,null=True,blank=True)
+
+    recipient_name =models.CharField(max_length=255)
+    default = models.BooleanField(default=False)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=10)
     state = models.CharField(max_length=100,blank=True,null=True)
     country = models.CharField(max_length=100)    
-    phone_number = models.CharField(max_length=20,blank=True,null=True)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be in format: '+999999999'.")
+    phone_number = models.CharField(validators=[phone_regex], max_length=17)
+    created_at =models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.recipient_name}, {self.address_line1}, {self.city}"
+    
+    @property
     def get_shipping_address(self):
-        return f'{self.address_line}  {self.city} {self.postal_code} {self.country}'
+        return f'{self.address_line1}  {self.city} {self.postal_code} {self.state} {self.country}  {self.phone_number}'
     
-
-# BillingAddress
-class BillingAddress(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    address_line = models.CharField(max_length=255)
-    city = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=10)
-    state = models.CharField(max_length=100)
-    country = models.CharField(max_length=100)    
-    phone_number = models.CharField(max_length=20)
     def get_billing_address(self):
-        return f'{self.address_line}  {self.city} {self.postal_code} {self.country}'
+        return f'{self.address_line1}  {self.city} {self.postal_code} {self.state} {self.country}  {self.phone_number}'
     
+    class Meta:
+        verbose_name_plural = 'Addresses'
+        ordering = ['-default','-created_at']
+        
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.EmailField(max_length=30)
@@ -137,9 +147,9 @@ class Order(models.Model):
     ordered_date = models.DateTimeField(auto_now_add=True)  # Changed from default=datetime.now()
     ordered = models.BooleanField(default=False)
     shipping_address = models.ForeignKey(
-        ShippingAddress, related_name='shipping_orders', on_delete=models.SET_NULL, blank=True, null=True)
+        Address, related_name='shipping_orders', on_delete=models.SET_NULL, blank=True, null=True)
     billing_address = models.ForeignKey(
-        BillingAddress, related_name='billing_orders', on_delete=models.SET_NULL, blank=True, null=True)
+        Address, related_name='billing_orders', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey(
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     # coupon = models.ForeignKey(

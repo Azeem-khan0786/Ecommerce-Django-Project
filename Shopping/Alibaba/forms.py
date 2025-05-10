@@ -1,5 +1,5 @@
 from django import forms
-from .models import ProductModel,CustomerModel,Category,ShippingAddress
+from .models import ProductModel,CustomerModel,Category,Address
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,PasswordChangeForm
 from django.contrib.auth.models import User
 
@@ -96,7 +96,8 @@ class CheckoutForm(forms.Form):
     payment_option = forms.ChoiceField(
         widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
     
-class ShippingAddressForm(forms.ModelForm):
+class AddressForm(forms.ModelForm):
     class Meta:
-        model = ShippingAddress
+        model = Address
         exclude = ('user',)
+
