@@ -40,6 +40,8 @@ urlpatterns = [
     path('changepassword/',views.ChangePasswordView.as_view(),name='changepassword'),
     path('addcart/<int:product_id>',views.add_cart,name='addcart'),
     path('viewcart/',views.view_cart,name='viewcart'),
+    # path('orderItems/',views.add_orderItem,name='orderItems'),
+
     path('checkout/',views.Checkout.as_view(),name='checkout'),
     path('payment_view/<payment_option>/',views.PaymentView.as_view(),name='payment_view'),
     path('order_summary',views.makeOrder.as_view(),name='order-summary'),

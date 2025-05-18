@@ -120,7 +120,11 @@
     <div class="col-md-5">
       <div class="card shadow-sm p-3">
         <h5 class="d-flex justify-content-between align-items-center mb-3">
+          {{cart}}
+          {{order.quantity}}
           <span class="text-muted">Your Cart</span>
+           orderId {{order_item}} {{order_id}}
+           
           <span class="badge badge-secondary badge-pill">{{ order.items.count }}</span>
         </h5>
 

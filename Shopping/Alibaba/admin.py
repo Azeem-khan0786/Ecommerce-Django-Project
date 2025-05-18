@@ -20,7 +20,7 @@ class CustomerAdmin(admin.ModelAdmin):
 admin.site.register(CustomerModel,CustomerAdmin)
 admin.site.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-   list_display=['product','quantity']
+   list_display=['product','quantity','date_added']
 admin.site.register(CartItem,CartAdmin)   
 
 admin.site.register(Category)

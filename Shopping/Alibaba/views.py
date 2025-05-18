@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect ,get_object_or_404
-from .models import ProductModel,Category,CustomerModel,OrderItem,Order ,Address,CartItem
+from .models import ProductModel,Category,CustomerModel,OrderItem,Order ,Address,CartItem,Cart
 from django.views import View
 from .forms import RegistrationForm,LoginForm,CustomerProfileForm,ChangePasswordForm
 from django.contrib import messages
@@ -218,29 +218,75 @@ class ChangePasswordView(View):
 
 @login_required(login_url=reverse_lazy('login'))
 def add_cart(request, product_id):
+    # firstly create cart then add items into cart as cartItem
+    cart , created = Cart.objects.get_or_create(user = request.user,is_ordered = False)
     product = ProductModel.objects.get(id=product_id)
-    cart_item, created = CartItem.objects.get_or_create(product=product,user=request.user)
-    cart_item.quantity += 1
-    # print(cart_item.quantity)
-    cart_item.save()
+    cart_item, created = CartItem.objects.get_or_create(cart=cart,product=product)
+    if not created :
+        cart_item.quantity += 1
+        cart_item.save()
     return redirect('viewcart')
 
 def view_cart(request):
-    cart_item = CartItem.objects.filter(user=request.user)
-    amount = 0
+    try:
+        cart = Cart.objects.get(user=request.user, is_ordered=False)
+        cart_item = CartItem.objects.filter(cart=cart)
+        amount = 0
+
+        for item in cart_item:
+            value = item.product.selling_price * item.quantity
+            amount += value
+
+        count = len(cart_item)
+        total_amount = amount + 40
+
+    except Cart.DoesNotExist:
+        cart = None
+        cart_item = []
+        amount = 0
+        count = 0
+        total_amount = 0
+
+    return render(request, 'Alibaba/cart.html', {
+        'cart': cart,
+        'cart_item': cart_item,
+        'amount': amount,
+        'count': count,
+        'total_amount': total_amount
+    })
+
+
+# A OrderItem when goto checkout from cartItems
+# def add_orderItem(request):
+    # check if user already has a pending Order
+    existing_order = Order.objects.filter(user= request.user,status = 'pending').first()
+
+    if existing_order:
+        return redirect('checkout',order_id = existing_order.id)
     
-    for item in cart_item:
-        value = item.product.selling_price * item.quantity
-        amount += value
-    count=len(cart_item)
-    total_amount = amount + 40
-    
-    return render(request, 'Alibaba/cart.html',locals())
+    cart_item =CartItem.objects.filter(user=request.user)
+    if not cart_item.exists():
+        return redirect('viewcart') # not item iincard 
+    #  firstly create an order
+    order =Order.objects.create(
+        user=request.user,
+        status ='pending'
+    )
+    for  item in cart_item:
+            order_item =OrderItem.objects.create(
+            order=order,
+            product = item.product,
+            quantity = item.quantity,
+            price = item.product.selling_price
+             )
+    print('Order_id',order.id)        
+            # order_item.save()
+    return render(request,'Alibaba/checkout.html',{'order_id':order.id,'order_item':order_item})
     
 class Checkout(View):
     def get(self, *args, **kwargs):
-        try:
-            order = Order.objects.get(user=self.request.user, ordered=False)
+        # try: 
+            # order = Order.objects.get(user=self.request.user, ordered=False)
             address_id =self.request.session.get('selected_address_id') 
             if address_id:
                 print('address_id ' , address_id)
@@ -250,20 +296,21 @@ class Checkout(View):
             
             # shipping_address = Address.objects.filter(user=self.request.user, address_type='shipping')
             billing_address = Address.objects.filter(user=self.request.user,address_type = 'billing').first()
+            order= convert_cart_to_order(self.request)
+            
+            # print('order',order)
             form = CheckoutForm()
             context = {
                 'form': form,
-                # 'couponform': CouponForm(),
                 'order': order,
-                'shipping_address':shipping_address,
-                'billing_address':billing_address,
-                # 'DISPLAY_COUPON_FORM': True
+                'shipping_address': shipping_address,
+                'billing_address': billing_address,
             }
             return render(self.request, "Alibaba/checkout.html", context)
 
-        except ObjectDoesNotExist:
-            messages.info(self.request, "You do not have an active order")
-            return redirect("checkout")
+        # except ObjectDoesNotExist:
+        #     messages.info(self.request, "You do not have an active order")
+        #     return redirect("viewcart")
 
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
@@ -430,7 +477,37 @@ class SelectAddress(View):
             return redirect('checkout')
         return redirect('address')
 
-
+def convert_cart_to_order(request):
+    cart = Cart.objects.get(user=request.user, is_ordered=False).first()
+    if cart.is_ordered:
+        if cart.order:
+            return cart.order
+        raise ValueError('Cart already ordered')
+    cart_items = cart.cart_items.all()
+    if not cart_items.exists():
+        raise ValueError('Can not order with empty cart')
+    # order_item = cart.cart_items.get_cartitem_total_amount()
+    # order = Order.objects.all()
+    order_total = sum(cartitem.product.selling_price * cartitem.quantity  for cartitem in cart_items)
+    # Create order
+    order = Order.objects.create(
+            user = request.user,
+            ordered =False,
+            status  ='Pending'
+            ) 
+    # Add cartItem into orderItems
+    for cart_item in cart_items:
+         OrderItem.objects.create(
+            order = order,
+            product =cart_item.product,
+            quantity = cart_item.quantity,
+            price = cart_item.product.selling_price
+        )
+    cart_items.delete()     
+    cart.is_ordered = True
+    cart.order =order
+    cart.save()
+    return order
         
     
     

@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from datetime import datetime
+from datetime import datetime 
+from django.utils import timezone
 from django.core.validators import RegexValidator
 # Create your models here.
 Catagories_Choice=(('PNT','pents'),
@@ -55,7 +56,7 @@ Stock_Choices = (
     ('in_stock' ,'Available Stock'),
     ('out_stock' ,'Out of Stock'),
 )
-
+Order_status =(('pending','Pending'),('received','Received'),('cenceled','cenceled'))
 class CustomerModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=100)
@@ -142,7 +143,6 @@ class Address(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.EmailField(max_length=30)
-    amount_paid = models.DecimalField(max_digits=5, decimal_places=2)
     shipping_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField(auto_now_add=True)  # Changed from default=datetime.now()
     ordered = models.BooleanField(default=False)
@@ -158,6 +158,7 @@ class Order(models.Model):
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
+    status = models.CharField(max_length=233,choices=Order_status,default='pending')
 
     def __str__(self):
         return f"Order place by {self.user}"
@@ -172,10 +173,31 @@ class OrderItem(models.Model):
     quantity=models.PositiveIntegerField(default=1)   
     price = models.DecimalField( max_digits=5, decimal_places=2)
 
-    # def __str__(self):
-    #     pass
     def get_total_item_price(self):
         return self.price * self.quantity
+    
+class Cart(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)   
+    created_at = models.DateTimeField(auto_now_add=True)
+    update_at  = models.DateTimeField(auto_now=True)
+    is_ordered = models.BooleanField(default=False)
+    order = models.ForeignKey(Order,null=True,blank=True,on_delete= models.SET_NULL)
+
+    def __str__(self):
+        return f'{self.user} has {self.cart_items.count()} cart items on date {self.created_at}'
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
+    product=models.ForeignKey(ProductModel,on_delete=models.CASCADE)
+    quantity=models.PositiveIntegerField(default=1)
+    date_added = models.DateTimeField(auto_now_add = True)
+
+    
+    def __str__(self) -> str:
+        return f'{self.quantity} * {self.product.title}'
+    
+    def get_cartitem_total_amount(self):
+         return self.product.selling_price
     
 class Payment(models.Model):
     stripe_charge_id = models.CharField(max_length=50)
@@ -189,16 +211,5 @@ class Payment(models.Model):
 
 
 
-
-class Cart(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)   
-    created_at = models.DateTimeField(auto_now_add=True)
-
-class CartItem(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)
-    product=models.ForeignKey(ProductModel,on_delete=models.CASCADE)
-    quantity=models.PositiveIntegerField(default=0)
     
-    def __str__(self) -> str:
-        return f'{self.quantity} * {self.product.title}'
     

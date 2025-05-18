@@ -11,27 +11,28 @@
 
     <div class="row justify-content-between">
         <div class="col"> <!-- Column 1 for product details -->
+        {% if cart_item %}    
             {% for item in cart_item %}
            
-            <div class="row mb-3  border border-secondary rounded-sm p-3">
-                <div class="col-3">
-                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.title }}" width="100px" height="150px">
-                </div>
-                <div class="col-9">
-                    <h5 style="font-family: Georgia; font-size: 30px;"><a href="{% url 'productDetail' item.id  %}">{{ item.product.title }}</a></h5>
-                    <div>
-                        <small>{{ item.product.description }}</small>
-                    </div><br>
-                    <div class="row align-items-center  m-auto ">
-                        <button class="btn btn-primary btn-sm mr-2"><a href="{% url 'removecart' item.id %}" class="text-white text-decoration-none">Remove Item</a></button>
-                        <div class="ml-3"><strong>Quantity:</strong> {{ item.quantity }}</div>
-                        <div class="ml-auto"><strong>Total MRP:</strong> $ {{ item.product.selling_price }}</div> 
-                        <div class="ml-auto"><strong>Total Price:</strong> $ {{ item.product.value }}</div> 
-                           
+                <div class="row mb-3  border border-secondary rounded-sm p-3">
+                    <div class="col-3">
+                        <img src="{{ item.product.product_image.url }}" alt="{{ item.product.title }}" width="100px" height="150px">
+                    </div>
+                    <div class="col-9">
+                        <h5 style="font-family: Georgia; font-size: 30px;"><a href="{% url 'productDetail' item.id  %}">{{ item.product.title }}</a></h5>
+                        <div>
+                            <small>{{ item.product.description }}</small>
+                        </div><br>
+                        <div class="row align-items-center  m-auto ">
+                            <button class="btn btn-primary btn-sm mr-2"><a href="{% url 'removecart' item.id %}" class="text-white text-decoration-none">Remove Item</a></button>
+                            <div class="ml-3"><strong>Quantity:</strong> {{ item.quantity }}</div>
+                            <div class="ml-auto"><strong>Total MRP:</strong> $ {{ item.product.selling_price }}</div> 
+                            <div class="ml-auto"><strong>Total Price:</strong> $ {{ item.product.value }}</div> 
+                            
 
+                        </div>
                     </div>
                 </div>
-            </div>
             {% endfor %}
         </div>
 
@@ -48,7 +49,13 @@
             </div>
             
         </div>
+    {% else %}
+          <div class="alert alert-info mt-4" role="alert">
+            You don't have any items in your cart.
+        </div>
+    {% endif %}
     </div>
+
 </div>
 <hr style="border: 1px solid red;">
 {% include "Alibaba/footer.html" %}
