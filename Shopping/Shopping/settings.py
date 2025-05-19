@@ -75,6 +75,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Alibaba.context_processors.get_items_count',
+                'Alibaba.context_processors.get_category_list',
+
+                
             ],
         },
     },

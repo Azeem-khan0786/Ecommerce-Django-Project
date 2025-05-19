@@ -5,6 +5,10 @@
     position: sticky;
     top: 0;
   } */
+   .dropdown-item:hover {
+  background-color: #007bff; /* Bootstrap primary color */
+  color: white;
+}
 </style>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark " style="height:50px;">
   <a class="navbar-brand" href="#"> <img src="{% static 'image/shop.jpg' %}" alt="" width="40" height="40"> </a>
@@ -20,19 +24,7 @@
         <a class="nav-link" href="/"> <i class="fa-solid fa-house"></i><span class="sr-only">(current)</span></a>
       </li>
       <div class="btn-group ml-3">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          products
-        </a>
-        {% comment %} {% url "category" "PNT" %} {% endcomment %}
-        <div class="dropdown-menu ">
-          <a class="dropdown-item" href='{% url "category" "PNT" %}'>Pents</a>
-          <a class="dropdown-item" href='{% url "category" "ST" %}'>Shirts</a>
-          <a class="dropdown-item" href='{% url "category" "SO" %}'>Shoes</a>
-          <a class="dropdown-item" href='{% url "category" "SA" %}'>Sharee</a>
-          <a class="dropdown-item" href='{% url "category" "WA" %}'>Belts</a>
-
-
-        </div>
+        
         <li class="nav-item">
           <a class="nav-link" href="{% url 'about' %}">About Us</a>
         </li>
@@ -40,9 +32,21 @@
           <a class="nav-link " href="{% url 'contact' %}">Contact Us</a>
         </li>
     </ul>
+    <div class="dropdown">
+  <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    All
+  </a>
+  <div class="dropdown-menu" aria-labelledby="categoryDropdown">
+    {% for cat in category %}
+      <a class="dropdown-item" href='{% url "category" "PNT" %}'>{{ cat.name }}</a>
+    {% endfor %}
+  </div>
+</div>
     <form class="form-inline my-2 my-lg-0" action="{% url 'product_search' %}" method="get">
       <ul class="navbar-nav m-auto">
-
+      <input class="form-control mr-sm-2 p-1" style="width: 500px;" type="search" placeholder="Search in Alibaba" aria-label="Search"
+        name='search'>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search </button>
         <li class="nav-item">
           <a class="nav-link" href="/admin">Admin</a>
         </li>
@@ -75,9 +79,7 @@
         
       </div>
       {% endif %}
-      <input class="form-control mr-sm-2 p-1" type="search" placeholder="Search in Alibaba" aria-label="Search"
-        name='search'>
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search </button>
+      
 
     </form>
     {% if user.is_authenticated %}
