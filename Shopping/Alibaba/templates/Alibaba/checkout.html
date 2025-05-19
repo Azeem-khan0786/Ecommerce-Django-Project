@@ -20,15 +20,15 @@
   }
 </style>
 
-<div class="container my-3">
+<div class="container-fluid y-1">
   <div class="text-center mb-4">
     <h2>Checkout</h2>
     <p class="lead">Please fill in your billing details and review your order.</p>
   </div>
 
-  <div class="row">
+  <div class="row p-1 ">
     <!-- Billing Info -->
-    <div class="col-md-7 mb-4">
+    <div class="col-md-6   mb-4">
       <div class="card p-3  shadow-sm">
           <h5>Billing Adrress</h5>
             <h5 class="d-flex justify-content-between align-items-center mb-3">
@@ -117,13 +117,12 @@
     </div>
 
     <!-- Cart Summary -->
-    <div class="col-md-5">
+    <div class="col-md-6">
       <div class="card shadow-sm p-3">
         <h5 class="d-flex justify-content-between align-items-center mb-3">
           {{cart}}
           {{order.quantity}}
           <span class="text-muted">Your Cart</span>
-           orderId {{order_item}} {{order_id}}
            
           <span class="badge badge-secondary badge-pill">{{ order.items.count }}</span>
         </h5>
@@ -139,33 +138,13 @@
           </li>
           {% endfor %}
 
-          {% if order.coupon %}
-          <li class="list-group-item d-flex justify-content-between bg-light">
-            <div class="text-success">
-              <h6 class="my-0">Promo code</h6>
-              <small>{{ order.coupon.code }}</small>
-            </div>
-            <span class="text-success">-${{ order.coupon.amount }}</span>
-          </li>
-          {% endif %}
 
           <li class="list-group-item d-flex justify-content-between">
-            <span>Total Amount</span>
-            <strong>${{ order.total_amount_of_order }}</strong>
+            <span>Total Amount (including $5)</span>
+            <strong>${{ order.total_amount }}</strong>
           </li>
         </ul>
 
-        {% if DISPLAY_COUPON_FORM %}
-        <form method="POST" action="{% url 'core:add-coupon' %}" class="card p-2">
-          {% csrf_token %}
-          <div class="input-group">
-            {{ couponform.code }}
-            <div class="input-group-append">
-              <button type="submit" class="btn btn-secondary">Redeem</button>
-            </div>
-          </div>
-        </form>
-        {% endif %}
       </div>
     </div>
   </div>

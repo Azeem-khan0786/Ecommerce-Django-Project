@@ -285,8 +285,13 @@ def view_cart(request):
     
 class Checkout(View):
     def get(self, *args, **kwargs):
-        # try: 
-            # order = Order.objects.get(user=self.request.user, ordered=False)
+        # try:
+        #  Firstly try to get an already created order 
+            # order = Order.objects.filter(user=self.request.user, ordered=False).first()
+            
+            # if not order:
+            #        
+            order= convert_cart_to_order(self.request)
             address_id =self.request.session.get('selected_address_id') 
             if address_id:
                 print('address_id ' , address_id)
@@ -296,7 +301,7 @@ class Checkout(View):
             
             # shipping_address = Address.objects.filter(user=self.request.user, address_type='shipping')
             billing_address = Address.objects.filter(user=self.request.user,address_type = 'billing').first()
-            order= convert_cart_to_order(self.request)
+            
             
             # print('order',order)
             form = CheckoutForm()
@@ -315,7 +320,7 @@ class Checkout(View):
     def post(self, *args, **kwargs):
         form = CheckoutForm(self.request.POST or None)
         try:
-            order = Order.objects.get(user=self.request.user, ordered=False)
+            order = Order.objects.filter(user=self.request.user, ordered=False).first()
             print(self.request.POST)
             if form.is_valid():
                 payment_option = form.cleaned_data.get('payment_option')
@@ -478,36 +483,55 @@ class SelectAddress(View):
         return redirect('address')
 
 def convert_cart_to_order(request):
-    cart = Cart.objects.get(user=request.user, is_ordered=False).first()
+    cart = Cart.objects.filter(user=request.user, is_ordered=False).first()
+
+    if not cart:
+        # Return the latest unplaced order if cart is already used
+        existing_order = Order.objects.filter(user=request.user, ordered=False).first()
+        if existing_order:
+            return existing_order
+        raise ValueError("No active cart or existing order.")
+
     if cart.is_ordered:
         if cart.order:
             return cart.order
         raise ValueError('Cart already ordered')
-    cart_items = cart.cart_items.all()
+
+    cart_items = cart.cart_items.all()  # ✅ this was missing
+
     if not cart_items.exists():
-        raise ValueError('Can not order with empty cart')
-    # order_item = cart.cart_items.get_cartitem_total_amount()
-    # order = Order.objects.all()
-    order_total = sum(cartitem.product.selling_price * cartitem.quantity  for cartitem in cart_items)
+        raise ValueError('Cannot order with an empty cart')
+
+    # Calculate total (optional, not stored here)
+    order_total = sum(cartitem.product.selling_price * cartitem.quantity for cartitem in cart_items)
+
     # Create order
     order = Order.objects.create(
-            user = request.user,
-            ordered =False,
-            status  ='Pending'
-            ) 
-    # Add cartItem into orderItems
+        user=request.user,
+        total_amount = order_total + 40,  # including shipping charge
+        ordered=False,
+        status='Pending'
+    )
+
+    # Create order items
     for cart_item in cart_items:
-         OrderItem.objects.create(
-            order = order,
-            product =cart_item.product,
-            quantity = cart_item.quantity,
-            price = cart_item.product.selling_price
+        OrderItem.objects.create(
+            order=order,
+            product=cart_item.product,
+            quantity=cart_item.quantity,
+            price=cart_item.product.selling_price
         )
-    cart_items.delete()     
+
+    # Optional: delete cart items after moving to order
+    cart.cart_items.all().delete()
+
+    # Finalize cart
     cart.is_ordered = True
-    cart.order =order
+    cart.order = order
     cart.save()
+
     return order
+
         
     
     

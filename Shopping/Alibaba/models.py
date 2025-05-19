@@ -146,6 +146,7 @@ class Order(models.Model):
     shipping_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField(auto_now_add=True)  # Changed from default=datetime.now()
     ordered = models.BooleanField(default=False)
+    total_amount = models.DecimalField(max_digits=5,decimal_places=2,blank=True,null= True)
     shipping_address = models.ForeignKey(
         Address, related_name='shipping_orders', on_delete=models.SET_NULL, blank=True, null=True)
     billing_address = models.ForeignKey(
@@ -160,10 +161,15 @@ class Order(models.Model):
     refund_granted = models.BooleanField(default=False)
     status = models.CharField(max_length=233,choices=Order_status,default='pending')
 
+    class Meta:
+        verbose_name_plural = 'Orders'
+        ordering = ['-id']
+
     def __str__(self):
         return f"Order place by {self.user}"
     def total_amount_of_order(self):
         return  sum(item.get_total_item_price() for item in self.items.all())
+    
     
 # model OrderItem for indivitual item
 class OrderItem(models.Model):
