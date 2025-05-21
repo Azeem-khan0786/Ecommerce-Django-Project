@@ -185,7 +185,7 @@ button:hover {
      <div class="col-md-5">
       <div class="card shadow-sm p-3">
         <h5 class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-muted">Your Cart</span>
+          <span class="text-muted">Your OrderItems</span>
           <span class="badge badge-secondary badge-pill">{{ order.items.count }}</span>
         </h5>
 
@@ -211,7 +211,11 @@ button:hover {
           {% endif %}
 
           <li class="list-group-item d-flex justify-content-between">
-            <span>Total Amount</span>
+            <h6 class="my-0">Shipping Charge </h6>
+            <span  class="text-muted">${{ order.shipping_charge }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span><b>Total Amount to pay</b></span>
             <strong>${{ order.total_amount_of_order }}</strong>
           </li>
         </ul>

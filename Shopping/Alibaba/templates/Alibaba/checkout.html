@@ -28,79 +28,37 @@
 
   <div class="row p-1 ">
     <!-- Billing Info -->
-    <div class="col-md-6   mb-4">
-      <div class="card p-3  shadow-sm">
-          <h5>Billing Adrress</h5>
-            <h5 class="d-flex justify-content-between align-items-center mb-3">
-              <span class="text-muted">
-                {{billing_address.address_line1}} in {{billing_address.city}} {{billing_address.state}} {{billing_address.postal_code}} {{billing_address.country}} {{billing_address.phone_number}}
-              </span>
-            </h5>
-          </div> 
-      <div class="card p-3  shadow-sm">
-          <h5>Shipping Adrress</h5>
-            <h5 class="d-flex justify-content-between align-items-center mb-3">
-              <span class="text-muted">
-                
-                {{shipping_address.recipeint_name}} {{shipping_address.address_line1}} in {{shipping_address.city}} {{shipping_address.state}} {{shipping_address.postal_code}} {{shipping_address.country}} {{shipping_address.phone_number}}
-                {% comment %} {% for address in shipping_adress %}
-                    {{address.address_line}} in {{address.city}} {{address.country}} {{address.postal_code}}
-
-              {% endfor %} {% endcomment %}
-              </span>
-              <a style="text-decoration: none; font-size: 14px;" href="{% url 'address' %}">change address</a>  
-            </h5>
-          </div>      
+    <div class="col-md-6   mb-4">      
       <div class="card p-3 shadow-sm">
         
         
-        <h4 class="mb-3">Shipping Address</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4>Delivering to {{request.user}}</h4>
+            <a style="text-decoration: none; font-size: 14px;" href="{% url 'address' %}">change </a>
+        </div>
         <form method="POST" class="needs-validation" novalidate>
           {% csrf_token %}
-          <div class="mb-3">
-            <label>Address</label>
-            {{ form.street_address }}
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label>Country</label>
-              {{ form.country }}
-              <div class="invalid-feedback">Please select a valid country.</div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>City</label>
-              <select class="custom-select d-block w-100" required>
-                <option value="">Choose...</option>
-                <option>California</option>
-                <option>Yangon</option>
-              </select>
-              <div class="invalid-feedback">Please provide a valid city.</div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>State</label>
-              {{ form.state }}
-              
-              <label>Phone</label>
-              {{ form.phone_number }}
-              
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>Zip</label>
-              {{ form.zip }}
-              <div class="invalid-feedback">Zip code required.</div>
-            </div>
-
-          </div>
-
-          <div class="form-check my-2">
-            <input type="checkbox" class="form-check-input" id="same_shipping_address" {% if form.same_shipping_address.value %}checked{% endif %}>
-            <label class="form-check-label" for="same_shipping_address">Shipping address is same as billing</label>
-          </div>
-          <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="save-info" {% if form.save_info.value %}checked{% endif %}>
-            <label class="form-check-label" for="save-info">Save info for next time</label>
-          </div>
-
+               <!-- Display the selected shipping address -->
+                {% if shipping_address %}
+                  <div class="mb-4">
+                    <h5 class="d-flex justify-content-between align-items-center mb-3">
+                      <span class="text-muted">
+                        <p>
+                          {{ shipping_address.address_line1 }}<br>
+                          {{ shipping_address.city }}, {{ shipping_address.state }} {{ shipping_address.postal_code }}
+                          {{ shipping_address.country }}<br>
+                          Phone: {{ shipping_address.phone_number }}
+                        </p>
+                      </span>
+                        
+                    </h5>
+                  </div>
+                {% else %}
+                  <div class="alert alert-warning">
+                    No shipping address selected. Please select one from your address book.
+                  </div>
+                {% endif %}
+                <hr>
           <h4 class="mt-4">Payment</h4>
           <div class="d-block my-3">
             {% for value, name in form.fields.payment_option.choices %}
@@ -111,7 +69,7 @@
             {% endfor %}
           </div>
 
-          <button class="btn btn-primary btn-lg btn-block mt-4" type="submit">Continue to checkout</button>
+          <button class="btn btn-warning btn-lg btn-block mt-4" type="submit">use this payment method</button>
         </form>
       </div>
     </div>
@@ -122,7 +80,7 @@
         <h5 class="d-flex justify-content-between align-items-center mb-3">
           {{cart}}
           {{order.quantity}}
-          <span class="text-muted">Your Cart</span>
+          <span class="text-muted">Your OrderItems</span>
            
           <span class="badge badge-secondary badge-pill">{{ order.items.count }}</span>
         </h5>
@@ -138,10 +96,13 @@
           </li>
           {% endfor %}
 
-
           <li class="list-group-item d-flex justify-content-between">
-            <span>Total Amount (including $5)</span>
-            <strong>${{ order.total_amount }}</strong>
+            <h6 class="my-0">Shipping Charge </h6>
+            <span  class="text-muted">${{ order.shipping_charge }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span><b>Total Amount to pay</b></span>
+            <strong>${{ order.total_amount_of_order }}</strong>
           </li>
         </ul>
 

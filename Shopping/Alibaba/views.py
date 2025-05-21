@@ -285,12 +285,7 @@ def view_cart(request):
     
 class Checkout(View):
     def get(self, *args, **kwargs):
-        # try:
-        #  Firstly try to get an already created order 
-            # order = Order.objects.filter(user=self.request.user, ordered=False).first()
-            
-            # if not order:
-            #        
+               
             order= convert_cart_to_order(self.request)
             address_id =self.request.session.get('selected_address_id') 
             if address_id:
@@ -324,10 +319,18 @@ class Checkout(View):
             print(self.request.POST)
             if form.is_valid():
                 payment_option = form.cleaned_data.get('payment_option')
-
+                # Retrieve selected shipping address from session
                 address_id =self.request.session.get('selected_address_id') 
-                shipping_address = Address.objects.get(id=address_id, user=self.request.user)
+                if address_id:
+                    shipping_address = Address.objects.get(id=address_id, user=self.request.user)
+                else:
+                    shipping_address = Address.objects.filter(user=self.request.user).first()
+                if not shipping_address:
+                    messages.error(self.request,'Please select a shipping address.')
+                    return redirect('checkout')
+                
                 # else:
+
                 #     shipping_address = Address(
                 #     user=self.request.user,
                 #     address_line1=form.cleaned_data.get('street_address'),
@@ -339,6 +342,7 @@ class Checkout(View):
                 #     phone_number=form.cleaned_data.get('phone_number'),
                 #     )
                 #     shipping_address.save()
+                # Assign Shipping Address to Order
                 order.shipping_address = shipping_address
                 order.save()
 
@@ -363,7 +367,7 @@ class PaymentView(View):
     # get payment page with uncomplete order of logged_in user
     def get(self, request, payment_option):
         try:
-            order = Order.objects.get(user=request.user, ordered=False)
+            order = Order.objects.filter(user=request.user, ordered=False).first()
         except Order.DoesNotExist:
             messages.error(request, "No active order found.")
             return redirect('cart')  # or wherever appropriate

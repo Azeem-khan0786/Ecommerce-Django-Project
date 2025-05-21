@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from datetime import datetime 
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from decimal import Decimal
 # Create your models here.
 Catagories_Choice=(('PNT','pents'),
                    ('ST','Shirts'),
@@ -153,8 +154,7 @@ class Order(models.Model):
         Address, related_name='billing_orders', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey(
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
-    # coupon = models.ForeignKey(
-    #     'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
+    shipping_charge = models.DecimalField(max_digits=5,decimal_places=2,blank=True,default=Decimal('5.00'))
     being_delivered = models.BooleanField(default=False)
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
@@ -168,7 +168,8 @@ class Order(models.Model):
     def __str__(self):
         return f"Order place by {self.user}"
     def total_amount_of_order(self):
-        return  sum(item.get_total_item_price() for item in self.items.all())
+        return sum(item.get_total_item_price() for item in self.items.all()) + (self.shipping_charge or Decimal('0.00'))
+    
     
     
 # model OrderItem for indivitual item
