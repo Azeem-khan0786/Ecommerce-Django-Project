@@ -50,8 +50,7 @@ urlpatterns = [
     path('paypal/', include("paypal.standard.ipn.urls")),  # ins=clude paypal view`s url`
     # path('product_view/',views.ProductView.as_view(),name='product_view'), # for json Data
     path('category_details/',views.CategoryView.as_view(),name='category_details'),
-    path('order_status/',views.orderStatus,name='order_status'),
-    path('get_order/',views.get_order,name='get_order'),
+    path('get_order/',views.OrderStatusView.as_view(),name='get_order'),
 
 
 

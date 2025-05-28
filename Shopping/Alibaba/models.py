@@ -58,6 +58,11 @@ Stock_Choices = (
     ('in_stock' ,'Available Stock'),
     ('out_stock' ,'Out of Stock'),
 )
+PAYMENT_CHOICES = (
+    ('S','stripe'),
+    ('P','paypal'),
+    ('COD','Cash on Delivery'),
+)
 Order_status =(('Draft', 'Draft'),         # Order created from cart, no address or payment yet
     ('Pending', 'Pending'),     # Address provided, waiting for payment
     ('Confirmed', 'Confirmed'), # Paid or COD accepted
@@ -156,9 +161,6 @@ class Address(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.EmailField(max_length=30)
-    shipping_date = models.DateTimeField(auto_now_add=True)
-    ordered_date = models.DateTimeField(auto_now_add=True)  # Changed from default=datetime.now()
-    ordered = models.BooleanField(default=False)
     total_amount = models.DecimalField(max_digits=5,decimal_places=2,blank=True,null= True)
     shipping_address = models.ForeignKey(
         Address, related_name='shipping_orders', on_delete=models.SET_NULL, blank=True, null=True)
@@ -166,12 +168,16 @@ class Order(models.Model):
         Address, related_name='billing_orders', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey(
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
+    payment_option = models.CharField(choices=PAYMENT_CHOICES,max_length=3,default='P')
     shipping_charge = models.DecimalField(max_digits=5,decimal_places=2,blank=True,default=Decimal('5.00'))
     being_delivered = models.BooleanField(default=False)
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
     status = models.CharField(max_length=233,choices=Order_status,default='pending')
+    shipping_date = models.DateTimeField(auto_now_add=True)
+    ordered_date = models.DateTimeField(auto_now_add=True)  # Changed from default=datetime.now()
+    ordered = models.BooleanField(default=False)
     
 
     class Meta:
@@ -182,6 +188,9 @@ class Order(models.Model):
         return f"Order place by {self.user} is {self.status}"
     
     def total_amount_of_order(self):
+        return sum(item.get_total_item_price() for item in self.items.all())
+    
+    def total_amount_of_order_with_tax(self):
         return sum(item.get_total_item_price() for item in self.items.all()) + (self.shipping_charge or Decimal('0.00'))
     
     def get_all_order_items(self):

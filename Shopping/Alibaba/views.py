@@ -326,9 +326,16 @@ class Checkout(View):
                 if payment_option == 'S':
                     return redirect('payment_view', payment_option='stripe')
                 elif payment_option == 'P':
+                    order.status ='pending'
+                    order.payment_option='P'
+                    order.save()
                     return redirect('payment_view', payment_option='paypal')
                 elif payment_option == 'COD':
-                    return redirect('order_status')
+                    order.status = 'confirmed'
+                    order.payment_option='COD'
+                    order.ordered = True
+                    order.save()
+                    return redirect('get_order')
                 else:
                     messages.warning(
                         self.request, "Invalid payment option select")
@@ -340,6 +347,85 @@ class Checkout(View):
                       {'form':form,'order':order,
                     #    'shipping_address':shipping_address
                                                            })    
+
+def convert_cart_to_order(request):
+    cart = Cart.objects.filter(user=request.user, is_ordered=False).first()
+
+    if not cart:
+        # Return the latest unplaced order if cart is already used
+        existing_order = Order.objects.filter(user=request.user, ordered=False).first()
+        if existing_order:
+            return existing_order
+        raise ValueError("No active cart or existing order.")
+
+    if cart.is_ordered:
+        if cart.order:
+            return cart.order
+        raise ValueError('Cart already ordered')
+
+    cart_items = cart.cart_items.all()  # ✅ this was missing
+
+    if not cart_items.exists():
+        raise ValueError('Cannot order with an empty cart')
+
+    # Calculate total (optional, not stored here)
+    order_total = sum(cartitem.product.selling_price * cartitem.quantity for cartitem in cart_items)
+
+    # Create order
+    order = Order.objects.create(
+        user=request.user,
+        total_amount = order_total + 40,  # including shipping charge
+        ordered=False,
+        
+    )
+    # Create order items
+    for cart_item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            product=cart_item.product,
+            quantity=cart_item.quantity,
+            price=cart_item.product.selling_price
+        )
+    # Optional: delete cart items after moving to order
+
+    cart.cart_items.all().delete()
+    cart.is_ordered = True
+    cart.order = order
+    cart.save()
+    return order
+
+class OrderStatusView(View):
+    def get(self,request):
+            order = Order.objects.filter(user=self.request.user).latest('ordered_date')
+            # Status mapping for templates
+            status_info = {
+                'P': {  # PayPal statuses
+                    'pending': 'Waiting for payment confirmation',
+                    'processing': 'Payment received, preparing order',
+                    'completed': 'Order fulfilled',
+                    'failed': 'Payment failed',
+                    'refunded': 'Refund processed'
+                },
+                'COD': {  # COD statuses
+                    'confirmed': 'Order confirmed',
+                    'shipped': 'On the way',
+                    'delivered': 'Delivered - Please pay the delivery agent',
+                    'completed': 'Order complete',
+                    'returned': 'Items returned'
+                }
+            }
+            context ={'order':order,
+                    'status_message': status_info[order.payment_option].get(order.status, ''),
+                     'next_step' : self.get_next_step(order)
+                    }
+
+            return render(request,'Alibaba/orderstatus.html',context)
+    def get_next_step(self,order):
+        if order.payment_option == 'P' and order.status =='pending':
+            return "Confirmed your paypal payment for proceed!"
+        elif order.payment_option == 'COD' and order.status == 'confirmed':
+            return 'We are shipping your order'
+
 # Payment method using paypal
 class PaymentView(View):
     # get payment page with uncomplete order of logged_in user
@@ -431,75 +517,6 @@ class SelectAddress(View):
             request.session['selected_address_id']=address.id
             return redirect('checkout')
         return redirect('address')
-
-def convert_cart_to_order(request):
-    cart = Cart.objects.filter(user=request.user, is_ordered=False).first()
-
-    if not cart:
-        # Return the latest unplaced order if cart is already used
-        existing_order = Order.objects.filter(user=request.user, ordered=False).first()
-        if existing_order:
-            return existing_order
-        raise ValueError("No active cart or existing order.")
-
-    if cart.is_ordered:
-        if cart.order:
-            return cart.order
-        raise ValueError('Cart already ordered')
-
-    cart_items = cart.cart_items.all()  # ✅ this was missing
-
-    if not cart_items.exists():
-        raise ValueError('Cannot order with an empty cart')
-
-    # Calculate total (optional, not stored here)
-    order_total = sum(cartitem.product.selling_price * cartitem.quantity for cartitem in cart_items)
-
-    # Create order
-    order = Order.objects.create(
-        user=request.user,
-        total_amount = order_total + 40,  # including shipping charge
-        ordered=False,
-        status='Draft'
-
-    )
-
-    # Create order items
-    for cart_item in cart_items:
-        OrderItem.objects.create(
-            order=order,
-            product=cart_item.product,
-            quantity=cart_item.quantity,
-            price=cart_item.product.selling_price
-        )
-
-
-    # Optional: delete cart items after moving to order
-
-    cart.cart_items.all().delete()
-
-    # Finalize cart
-    cart.is_ordered = True
-    cart.order = order
-    cart.save()
-
-    return order
-
-def get_order(request):
-    order = Order.objects.filter(user=request.user).first()
-    return render(request,'Alibaba/orderstatus.html',{'order':order})
-
-
-def orderStatus(request):
-    pass
-    # order = Order.objects.filter(user=request.user, ordered=False).first()
-    # order.status='Confirmed'
-    # order.ordered= True
-    # order.save()
-    # return render(request,'Alibaba/orderstatus.html',{'order':order})
-
-    
-    
 
 def productJson(request):    
     pass
