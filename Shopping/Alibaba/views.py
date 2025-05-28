@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate ,logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy , reverse 
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from .forms import CheckoutForm ,AddressForm
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
@@ -46,7 +46,8 @@ def home(request):
 
     data={
         'products': products,
-        'categories': categories
+        'categories': categories,
+
     }
 
     return render(request,'Alibaba/home.html', data )
@@ -71,21 +72,9 @@ class CategoryView(View):
 class ProductDetail(View):
     def get(self,request,pk):
         data = get_object_or_404(ProductModel,pk=pk)
-        return render(request,'Alibaba/productDetail.html',{'data':data})
+        # if data.not_in_stock:
 
-# for json Data     
-# class ProductView(APIView):
-#     parser_classes = (MultiPartParser, FormParser)
-#     def get(self,request):
-#         product_details = ProductModel.objects.all()
-#         serializer = ProductSerializer(product_details,many = True)
-#         return Response(serializer.data)  
-#     def post(self,request):
-#         serializer = ProductSerializer(data = request.data,many = True)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data,status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)  
+        return render(request,'Alibaba/productDetail.html',{'data':data}) 
 
 class CategoryView(APIView):
     def get(self,request):
@@ -329,21 +318,8 @@ class Checkout(View):
                     messages.error(self.request,'Please select a shipping address.')
                     return redirect('checkout')
                 
-                # else:
-
-                #     shipping_address = Address(
-                #     user=self.request.user,
-                #     address_line1=form.cleaned_data.get('street_address'),
-                #     city=form.cleaned_data.get('apartment_address'),
-                #     country=form.cleaned_data.get('country'),
-                #     postal_code=form.cleaned_data.get('zip'),
-                #     state=form.cleaned_data.get('state'),
-                #     address_type ='shpping',
-                #     phone_number=form.cleaned_data.get('phone_number'),
-                #     )
-                #     shipping_address.save()
-                # Assign Shipping Address to Order
                 order.shipping_address = shipping_address
+                order.status = 'Pending'
                 order.save()
 
                 # add redirect to the selected payment option
@@ -351,6 +327,8 @@ class Checkout(View):
                     return redirect('payment_view', payment_option='stripe')
                 elif payment_option == 'P':
                     return redirect('payment_view', payment_option='paypal')
+                elif payment_option == 'COD':
+                    return redirect('order_status')
                 else:
                     messages.warning(
                         self.request, "Invalid payment option select")
@@ -397,39 +375,7 @@ class PaymentView(View):
         else:
             messages.warning(request, "Your order doesn't have a shipping address.")
             return redirect('checkout')
-
-    # def post(self, request, payment_option):
-    #     try:
-    #         order = Order.objects.get(user=request.user, ordered=False)
-    #     except Order.DoesNotExist:
-    #         messages.error(request, "No active order found.")
-    #         return redirect('cart')
-
-    #     host = request.get_host()
-    #     invoice_id = str(uuid.uuid4())  # unique invoice
-
-    #     paypal_dict = {
-    #         'business': settings.PAYPAL_RECEIVER_EMAIL,
-    #         'amount': order.total_amount_of_order(),  # Ensure this method returns Decimal
-    #         'item_name': f"Order #{order.id}",
-    #         'invoice': invoice_id,
-    #         'currency_code': 'USD',
-    #         'notify_url': f"http://{host}{reverse('paypal-ipn')}",
-    #         'return_url': f"http://{host}{reverse('payment_success')}",
-    #         'cancel_return': f"http://{host}{reverse('payment_failed')}",
-    #     }
-
-    #     paypal_form = PayPalPaymentsForm(initial=paypal_dict)
-
-    #     context = {
-    #         'order': order,
-    #         'paypal_form': paypal_form,
-    #         'payment_option': payment_option
-    #     }
-
-    #     return render(request, 'Alibaba/payment.html', context)
-
-
+        
 def remove_from_cart(request, item_id):
     user=request.user
     cart_item = CartItem.objects.get(id=item_id,user=user)
@@ -514,7 +460,8 @@ def convert_cart_to_order(request):
         user=request.user,
         total_amount = order_total + 40,  # including shipping charge
         ordered=False,
-        status='Pending'
+        status='Draft'
+
     )
 
     # Create order items
@@ -526,7 +473,9 @@ def convert_cart_to_order(request):
             price=cart_item.product.selling_price
         )
 
+
     # Optional: delete cart items after moving to order
+
     cart.cart_items.all().delete()
 
     # Finalize cart
@@ -536,7 +485,19 @@ def convert_cart_to_order(request):
 
     return order
 
-        
+def get_order(request):
+    order = Order.objects.filter(user=request.user).first()
+    return render(request,'Alibaba/orderstatus.html',{'order':order})
+
+
+def orderStatus(request):
+    pass
+    # order = Order.objects.filter(user=request.user, ordered=False).first()
+    # order.status='Confirmed'
+    # order.ordered= True
+    # order.save()
+    # return render(request,'Alibaba/orderstatus.html',{'order':order})
+
     
     
 

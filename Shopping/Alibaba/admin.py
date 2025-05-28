@@ -32,8 +32,9 @@ admin.site.register(Payment)
 # admin.site.register(OrderPlacedModel,OrderAdmin)       
 # 
 class OrderAdmin(admin.ModelAdmin):
-   list_display=['id','user','status']
+   list_display=['id','user','status','get_count','get_all_order_items']
 admin.site.register(Order,OrderAdmin) 
+
 admin.site.register(OrderItem)          
 admin.site.register(Address)  
   

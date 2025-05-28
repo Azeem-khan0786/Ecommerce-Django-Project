@@ -65,6 +65,9 @@ Home Page
                                 <button class="btn btn-primary m-1">
                                     <a href="{% url 'productDetail' x.pk %}" style="text-decoration: none; color: white;">Visit here Now</a>
                                 </button>
+                                {% if x.not_in_stock %}
+                                     <p style="color: red;">Out of Stock</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

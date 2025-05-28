@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from datetime import datetime 
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from decimal import Decimal
 # Create your models here.
 Catagories_Choice=(('PNT','pents'),
@@ -57,7 +58,15 @@ Stock_Choices = (
     ('in_stock' ,'Available Stock'),
     ('out_stock' ,'Out of Stock'),
 )
-Order_status =(('pending','Pending'),('received','Received'),('cenceled','cenceled'))
+Order_status =(('Draft', 'Draft'),         # Order created from cart, no address or payment yet
+    ('Pending', 'Pending'),     # Address provided, waiting for payment
+    ('Confirmed', 'Confirmed'), # Paid or COD accepted
+    ('Processing', 'Processing'),
+    ('Shipped', 'Shipped'),
+    ('Delivered', 'Delivered'),
+    ('Cancelled', 'Cancelled'),
+    ('Failed', 'Failed'),)
+
 class CustomerModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=100)
@@ -92,7 +101,7 @@ class ProductModel(models.Model):
     # product_image = models.URLField()  # Ensure it's a URLField, not ImageField!
     composition = models.TextField( blank=True,null=True)
     is_stock = models.CharField(max_length=10,choices=Stock_Choices,default= 'in_stock')
-    stock_quantity = models.BooleanField(default=True)
+    product_in_stock = models.PositiveSmallIntegerField(default=1)
 
     def __str__(self):
         return f"{self.title}"
@@ -106,6 +115,9 @@ class ProductModel(models.Model):
     @staticmethod
     def get_products_by_category(category_id):
         return ProductModel.objects.filter(category_id=category_id)
+    
+    def not_in_stock(self):
+       return self.product_in_stock < 1
     
 # Address for both ShippingAddress and BillingAddress
 Address_choice=(('shipping','ShippingAddress'),('billing','BillingAddress'))
@@ -160,17 +172,22 @@ class Order(models.Model):
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
     status = models.CharField(max_length=233,choices=Order_status,default='pending')
+    
 
     class Meta:
         verbose_name_plural = 'Orders'
         ordering = ['-id']
 
     def __str__(self):
-        return f"Order place by {self.user}"
+        return f"Order place by {self.user} is {self.status}"
+    
     def total_amount_of_order(self):
         return sum(item.get_total_item_price() for item in self.items.all()) + (self.shipping_charge or Decimal('0.00'))
     
-    
+    def get_all_order_items(self):
+        return [items.product for items in self.items.all()]
+    def get_count(self):
+        return self.items.count()
     
 # model OrderItem for indivitual item
 class OrderItem(models.Model):
@@ -182,6 +199,10 @@ class OrderItem(models.Model):
 
     def get_total_item_price(self):
         return self.price * self.quantity
+    
+    def stock_validation(self):
+        if self.quantity > ProductModel.product_in_stock:
+            raise ValidationError('Order Quantity can`t be more than available stock ')
     
 class Cart(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE,null=True)   

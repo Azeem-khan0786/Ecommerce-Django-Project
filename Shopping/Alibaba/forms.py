@@ -4,13 +4,12 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,Passw
 from django.contrib.auth.models import User
 
 from django_countries.fields import CountryField
-from django_countries.widgets import CountrySelectWidget
-# from captcha.fields import ReCaptchaField 
-# from captcha.widgets import ReCaptchaV2Checkbox 
+from django_countries.widgets import CountrySelectWidget 
 
 PAYMENT_CHOICES = (
     ('S','stripe'),
     ('P','paypal'),
+    ('COD','Cash on Delivery'),
 )
 #Registration f
 class RegistrationForm(UserCreationForm):
@@ -28,8 +27,6 @@ class LoginForm(forms.Form):
     username = forms.CharField(max_length=63,widget=forms.TextInput(attrs={'class':'form-control bg-smoke','placeholder':'username1'}))
     password = forms.CharField(max_length=63, widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'password'}))
 
-    # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
-# Category form
 class CategoryForm(forms.ModelForm):
     class Meta:
         model =  Category 
@@ -46,8 +43,7 @@ class CustomerProfileForm(forms.ModelForm):
                  'zipcode':forms.NumberInput(attrs={'class':'form-control'}),
                  'state':forms.Select(attrs={'class':'form-control'}),
 
-                 }
-        
+                 }      
 class ChangePasswordForm(PasswordChangeForm):
     old_password = forms.CharField(
         strip=False,

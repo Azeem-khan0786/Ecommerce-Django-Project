@@ -1,0 +1,63 @@
+{% extends "Alibaba/base.html" %}
+{% load static %}
+{% block title %} Order page{% endblock title %}
+{% block content %}
+{% include "Alibaba/navbar.html" %}
+ {{order}}<br>
+ <h5> Hey {{request.user}}</h5>
+ <h4 style ='color:yellow;'> <b> Your Order is {{order.status}}</b></h4>
+<p class="order-summary">
+    Thanks for shopping! Your order 
+    <strong>{{ order.items.first.product.title }}</strong>
+    {% with remaining_items=order.items.count|add:"-1" %}
+        {% if remaining_items > 0 %}
+            and <strong>{{ remaining_items }} more item{{ remaining_items|pluralize }}</strong>
+        {% endif %}
+    {% endwith %}
+    hasn't shipped yet. We'll notify you when it does.
+</p>
+{% comment %} your OrderItems {% endcomment %}
+
+<ul class="list-group mb-3 mt-3 ">
+  {% for order_item in order.items.all %}
+    <li class="list-group-item d-flex justify-content-between align-items-center lh-condensed">
+      <div class="d-flex align-items-center">
+        <!-- Image container -->
+        <div class="me-3" style="width: 40px; height: 40px;">
+          {% if order_item.product.product_image %}
+            <img src="{{ order_item.product.product_image.url }}" 
+                 alt="{{ order_item.product.title }}" 
+                 class="img-fluid h-100 w-100 object-fit-cover rounded"
+                 style="object-fit: contain;">
+          {% else %}
+            <div class="no-image-placeholder d-flex align-items-center justify-content-center h-100 w-100 bg-light rounded">
+              <small class="text-muted">No Image</small>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Product details -->
+        <div>
+          <h6 class="my-0">{{ order_item.product }}</h6>
+          <small class="text-muted">Quantity: {{ order_item.quantity }}</small>
+        </div>
+      </div>
+      
+      <!-- Price -->
+      <span class="text-muted">${{ order_item.get_total_item_price }}</span>
+    </li>
+  {% endfor %}
+</ul>
+
+<style>
+  .object-fit-cover {
+    object-fit: cover;
+  }
+  .no-image-placeholder {
+    font-size: 0.7rem;
+  }
+</style>
+   {% include "Alibaba/footer.html" %}
+
+{% endblock content %}
+
