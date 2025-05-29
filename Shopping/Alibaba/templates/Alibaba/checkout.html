@@ -3,6 +3,7 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+{% include "Alibaba/navbar.html" %}
 <style>
   .form-control {
     display: block;
@@ -102,7 +103,7 @@
           </li>
           <li class="list-group-item d-flex justify-content-between">
             <span><b>Total Amount to pay</b></span>
-            <strong>${{ order.total_amount_of_order }}</strong>
+            <strong>${{ order.total_amount_of_order_with_tax }}</strong>
           </li>
         </ul>
 

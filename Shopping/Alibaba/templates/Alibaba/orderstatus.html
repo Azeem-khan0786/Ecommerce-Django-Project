@@ -66,17 +66,12 @@
         {% endif %}
     </div>
     
-    <div class="status-message alert alert-info">
+    {% comment %} <div class="status-message alert alert-info">
         {{ status_message }}
         {% if next_steps %}
             <p class="mt-2"><small>{{ next_steps }}</small></p>
         {% endif %}
-    </div>
-    
-    <!-- Payment-specific actions -->
-    {% if order.payment_option == 'P' and order.status == 'pending' %}
-        <a href="{% url 'retry_payment' order.id %}" class="btn btn-primary">Complete Payment</a>
-    {% endif %}
+    </div> {% endcomment %}
 </div>
 
     <hr>
@@ -116,9 +111,12 @@
 <div class="d-flex justify-content-between align-items-start mt-4">
     
     <!-- Left: Totals -->
-    <div>
-        <a href="" class="btn btn-warning" style='color:white;'>View or Manage Order</a>
-    </div>
+   
+        <div>
+            <a href="" class="btn btn-warning" style='color:white;'>View or Manage Order</a>
+        </div>
+        
+
     
 
     <!-- Right: Button -->
@@ -126,6 +124,10 @@
         <p class="mb-1"><strong>Subtotal:   </strong>₹{{ order.total_amount_of_order }}</p>
         <p class="mb-1"><strong>Shipping Charge:   </strong>₹{{ order.shipping_charge }}</p>
         <p class="h5"><strong>Total:   </strong>₹{{ order.total_amount_of_order_with_tax }}</p>
+        <!-- Payment-specific actions -->
+        {% if order.payment_option == 'P' and order.status == 'Pending' %}
+            <a href="{% url 'payment_view' order.payment_option %}" class="btn btn-primary" style='color:white;'>Complete Payment</a>
+        {% endif %}
     </div>
     
 

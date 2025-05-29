@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
+from decimal import Decimal
 
 # Create your views here.
 
@@ -319,27 +320,33 @@ class Checkout(View):
                     return redirect('checkout')
                 
                 order.shipping_address = shipping_address
-                order.status = 'Pending'
-                order.save()
-
                 # add redirect to the selected payment option
                 if payment_option == 'S':
                     return redirect('payment_view', payment_option='stripe')
                 elif payment_option == 'P':
-                    order.status ='pending'
+                    order.status ='Pending'
                     order.payment_option='P'
-                    order.save()
-                    return redirect('payment_view', payment_option='paypal')
+                    # order.save()
+                    # return redirect('payment_view', payment_option='paypal')
                 elif payment_option == 'COD':
-                    order.status = 'confirmed'
+                    order.status = 'Confirmed'
                     order.payment_option='COD'
                     order.ordered = True
-                    order.save()
-                    return redirect('get_order')
+                    # order.save()
+                    # return redirect('get_order')
                 else:
                     messages.warning(
                         self.request, "Invalid payment option select")
                     return redirect('checkout')
+                order.save()
+                print(f"DEBUG: Order status saved as {order.status}")  # Verify
+
+            # Redirect based on payment
+            if payment_option == 'P':
+                return redirect('payment_view', payment_option='paypal')
+            elif payment_option == 'COD':
+                return redirect('get_order')
+
         except ObjectDoesNotExist:
             messages.error(self.request, "You do not have an active order")
             return redirect("order-summary")
@@ -370,13 +377,13 @@ def convert_cart_to_order(request):
 
     # Calculate total (optional, not stored here)
     order_total = sum(cartitem.product.selling_price * cartitem.quantity for cartitem in cart_items)
+    shipping_charge = Decimal('5.00')
 
     # Create order
     order = Order.objects.create(
         user=request.user,
-        total_amount = order_total + 40,  # including shipping charge
-        ordered=False,
-        
+        total_amount= Decimal(str(order_total)) + shipping_charge,
+        ordered=False
     )
     # Create order items
     for cart_item in cart_items:
@@ -421,9 +428,9 @@ class OrderStatusView(View):
 
             return render(request,'Alibaba/orderstatus.html',context)
     def get_next_step(self,order):
-        if order.payment_option == 'P' and order.status =='pending':
+        if order.payment_option == 'P' and order.status =='Pending':
             return "Confirmed your paypal payment for proceed!"
-        elif order.payment_option == 'COD' and order.status == 'confirmed':
+        elif order.payment_option == 'COD' and order.status == 'Confirmed':
             return 'We are shipping your order'
 
 # Payment method using paypal

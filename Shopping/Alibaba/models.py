@@ -174,7 +174,7 @@ class Order(models.Model):
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
-    status = models.CharField(max_length=233,choices=Order_status,default='pending')
+    status = models.CharField(max_length=233,choices=Order_status,default='Pending')
     shipping_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField(auto_now_add=True)  # Changed from default=datetime.now()
     ordered = models.BooleanField(default=False)

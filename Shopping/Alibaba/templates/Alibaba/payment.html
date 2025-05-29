@@ -216,7 +216,7 @@ button:hover {
           </li>
           <li class="list-group-item d-flex justify-content-between">
             <span><b>Total Amount to pay</b></span>
-            <strong>${{ order.total_amount_of_order }}</strong>
+            <strong>${{ order.total_amount_of_order_with_tax }}</strong>
           </li>
         </ul>
 
@@ -254,7 +254,7 @@ button:hover {
         </div>
         <div class="card-body">
             <p><strong>Order ID:</strong> {{ order.id }}</p>
-            <p><strong>Total Amount:</strong> ${{ order.total_amount_of_order }}</p>
+            <p><strong>Total Amount:</strong> ${{ order.total_amount_of_order_with_tax }}</p>
             <p><strong>Payment Option:</strong> {{ payment_option|title }}</p>
             <p><strong>Shipping Address:</strong> {{ order.shipping_address }}</p>
         </div>
