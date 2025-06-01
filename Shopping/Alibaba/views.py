@@ -221,8 +221,20 @@ def view_cart(request):
     try:
         cart = Cart.objects.get(user=request.user, is_ordered=False)
         cart_item = CartItem.objects.filter(cart=cart)
+        
+        # Handle plus/minus directly here
+        if request.method == 'POST':
+            item_id  = request.POST.get('item_id')
+            action = request.POST.get('action')
+            
+            cart_item = get_object_or_404(CartItem,id = item_id,cart=cart)
+            if action == 'plus':
+                cart_item.quantity +=1
+            elif action == 'minus' and cart_item.quantity>1:
+                cart_item.quantity -=1
+            cart_item.save()
+            return redirect('viewcart') 
         amount = 0
-
         for item in cart_item:
             value = item.product.selling_price * item.quantity
             amount += value
@@ -248,30 +260,30 @@ def view_cart(request):
 
 # A OrderItem when goto checkout from cartItems
 # def add_orderItem(request):
-    # check if user already has a pending Order
-    existing_order = Order.objects.filter(user= request.user,status = 'pending').first()
+#     # check if user already has a pending Order
+#     existing_order = Order.objects.filter(user= request.user,status = 'pending').first()
 
-    if existing_order:
-        return redirect('checkout',order_id = existing_order.id)
+#     if existing_order:
+#         return redirect('checkout',order_id = existing_order.id)
     
-    cart_item =CartItem.objects.filter(user=request.user)
-    if not cart_item.exists():
-        return redirect('viewcart') # not item iincard 
-    #  firstly create an order
-    order =Order.objects.create(
-        user=request.user,
-        status ='pending'
-    )
-    for  item in cart_item:
-            order_item =OrderItem.objects.create(
-            order=order,
-            product = item.product,
-            quantity = item.quantity,
-            price = item.product.selling_price
-             )
-    print('Order_id',order.id)        
-            # order_item.save()
-    return render(request,'Alibaba/checkout.html',{'order_id':order.id,'order_item':order_item})
+#     cart_item =CartItem.objects.filter(user=request.user)
+#     if not cart_item.exists():
+#         return redirect('viewcart') # not item iincard 
+#     #  firstly create an order
+#     order =Order.objects.create(
+#         user=request.user,
+#         status ='pending'
+#     )
+#     for  item in cart_item:
+#             order_item =OrderItem.objects.create(
+#             order=order,
+#             product = item.product,
+#             quantity = item.quantity,
+#             price = item.product.selling_price
+#              )
+#     print('Order_id',order.id)        
+#             # order_item.save()
+#     return render(request,'Alibaba/checkout.html',{'order_id':order.id,'order_item':order_item})
     
 class Checkout(View):
     def get(self, *args, **kwargs):
@@ -448,9 +460,9 @@ class PaymentView(View):
 
         paypal_dict = {
             'business': settings.PAYPAL_RECEIVER_EMAIL,
-            'amount': order.total_amount_of_order(),  # Ensure this method returns Decimal
+            'amount':  "%.2f" % order.total_amount_of_order(),  # Ensure this method returns Decimal
             'item_name': f"Order #{order.id}",
-            'invoice': invoice_id,
+            'invoice': str(uuid.uuid4()),
             'currency_code': 'USD',
             'notify_url': f"http://{host}{reverse('paypal-ipn')}",
             'return_url': f"http://{host}{reverse('payment_success')}",

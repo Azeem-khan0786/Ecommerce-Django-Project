@@ -25,7 +25,22 @@
                         </div><br>
                         <div class="row align-items-center  m-auto ">
                             <button class="btn btn-primary btn-sm mr-2"><a href="{% url 'removecart' item.id %}" class="text-white text-decoration-none">Remove Item</a></button>
-                            <div class="ml-3"><strong>Quantity:</strong> {{ item.quantity }}</div>
+                            <div class="ml-3"><strong>Quantity:</strong></div>
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <input type="hidden" name="action" value="minus">
+                                <button type="submit" class="btn btn-sm ">−</button>
+                            </form>
+                               <span>{{ item.quantity }}</span>
+
+                            <form method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <input type="hidden" name="action" value="plus">
+                                <button type="submit" class="btn btn-sm ">+</button>
+                            </form>
+
                             <div class="ml-auto"><strong>Total MRP:</strong> $ {{ item.product.selling_price }}</div> 
                             <div class="ml-auto"><strong>Total Price:</strong> $ {{ item.product.value }}</div> 
                             

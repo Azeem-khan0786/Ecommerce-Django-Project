@@ -33,12 +33,10 @@
         </li>
     </ul>
     <div class="dropdown">
-  <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    All
-  </a>
+  
   <div class="dropdown-menu" aria-labelledby="categoryDropdown">
     {% for cat in category %}
-      <a class="dropdown-item" href='{% url "category" "PNT" %}'>{{ cat.name }}</a>
+      <a class="dropdown-item" href="/?cat={{ cat.id }}">{{ cat.name }}</a>
     {% endfor %}
   </div>
 </div>

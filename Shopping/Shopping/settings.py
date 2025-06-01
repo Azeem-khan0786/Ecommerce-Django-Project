@@ -147,3 +147,6 @@ MEDIA_URL = "/media/"
 
 PAYPAL_TEST = True # use paypal sandbox
 PAYPAL_RECEIVER_EMAIL = 'businessalibaba@gmail.com' # business sandbox account
+
+# PAYPAL_RECEIVER_EMAIL = os.environ.get("PAYPAL_RECEIVER_EMAIL")
+# PAYPAL_TEST = os.environ.get("PAYPAL_TEST") == "True"
