@@ -97,8 +97,10 @@ class RegistrationView(View):
     def post(self,request):
         form=RegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user=form.save()
+            login(request,user)  # if login automatically after registration
             messages.success(request,'Registration has been completed!!!!!!!!!!')
+            return redirect('home')
         else:
             messages.warning(request, "Data was not inserted")
         return render(request,"Alibaba/registration.html",context={"register_form":form})
@@ -127,31 +129,23 @@ class LoginView(View):
             return render(request, 'Alibaba/login.html', context={"login_form": form, 'messages': messages})
 
         # Ensure a response is returned in all scenarios
-        return render(request, 'Alibaba/login.html', context={"login_form": form, 'messages': messages})          
-class ProfileView(View):
-    def get(self,request):
-        messages=''
-        form=ProfileForm()
-        return render(request,'Alibaba/profile.html',context={"profile_form":form,"message":messages})
-    def post(self,request):
-        if request.method=='POST':
-            form=ProfileForm(request.POST)
-            if form.is_valid():
-                user=request.user
-                name=form.cleaned_data['name']
-                location=form.cleaned_data['location']
-                city=form.cleaned_data['city']
-                mobile=form.cleaned_data['mobile']
-                state=form.cleaned_data['state']
-                zipcode=form.cleaned_data['zipcode']
-                data=ProfileModel(user=user,name=name,location=location,city=city,mobile=mobile,state=state,zipcode=zipcode)
+        return render(request, 'Alibaba/login.html', context={"login_form": form, 'messages': messages})  
+            
 
-                data.save()
-                print(data)
-                messages.success(request,'Profile created sucessfully!!')
-            else:
-                messages.warning(request,'Profile cannot create ')
-            return render(request,'Alibaba/profile.html',context={"profile_form":form,"message":messages})
+def get_profile(request):
+    profile = ProfileModel.objects.get(user=request.user)
+    return render(request,'Alibaba/profile.html',context={"profile":profile})
+
+def update_profile(request):
+        profile = ProfileModel.objects.get(user= request.user)
+        if request.method=='POST':
+            form=ProfileForm(request.POST,request.FILES,instance = profile)
+            if form.is_valid():
+                form.save()
+                return redirect('profile')
+        else:
+            form = ProfileForm(instance=profile)
+        return render(request,'Alibaba/updateprofile.html',context={"form":form,"message":messages})
 
 class makeOrder(View):
     def get(self,request):

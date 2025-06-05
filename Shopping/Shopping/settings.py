@@ -38,11 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Alibaba',
+    # 'Alibaba',
     "crispy_forms",
     "crispy_bootstrap4",
+    'widget_tweaks',
     'paypal.standard.ipn', # paypal app intalled
     'rest_framework',
+    'Alibaba.apps.AlibabaConfig', # app for activate signals
   
 
 ]

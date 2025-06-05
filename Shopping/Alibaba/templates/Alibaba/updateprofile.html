@@ -1,29 +1,103 @@
 {% extends "Alibaba/base.html" %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block title %}Update Profile{% endblock %}
 
-{% block title %}User Profile{% endblock  %}
 {% block content %}
-{% include "Alibaba/navbar.html" %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Your Profile</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
 
-<h3>Welcome {{request.user}}</h3>
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-12 m-5">
-            <form action="" method="post">
-                {% csrf_token %}
-                {{form|crispy}}
+                        <!-- Name -->
+                        <div class="form-group">
+                            <label for="id_name">Full Name</label>
+                            {{ form.name|add_class:"form-control" }}
+                        </div>
 
-                <button class="btn btn-primary text-dark m-1" type="submit">save me</button>
-                <button class="btn btn-success text-dark " type="cancel">go back</button>
-            </form>
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="id_email">Email Address</label>
+                            {{ form.email|add_class:"form-control" }}
+                        </div>
+
+                        <!-- Mobile -->
+                        <div class="form-group">
+                            <label for="id_mobile">Mobile Number</label>
+                            {{ form.mobile|add_class:"form-control" }}
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="form-group">
+                            <label for="id_date_of_birth">Date of Birth</label>
+                            {{ form.date_of_birth|add_class:"form-control" }}
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="form-group">
+                            <label for="id_gender">Gender</label>
+                            {{ form.gender|add_class:"form-control" }}
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-group">
+                            <label for="id_address_line1">Address Line 1</label>
+                            {{ form.address_line1|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_address_line2">Address Line 2</label>
+                            {{ form.address_line2|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="id_city">City</label>
+                                {{ form.city|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="id_state">State</label>
+                                {{ form.state|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="id_zipcode">Zipcode</label>
+                                {{ form.zipcode|add_class:"form-control" }}
+                            </div>
+                        </div>
+
+                        <!-- Country -->
+                        <div class="form-group">
+                            <label for="id_country">Country</label>
+                            {{ form.country|add_class:"form-control" }}
+                        </div>
+
+                        <!-- Profile Image -->
+                        <div class="form-group">
+                            <label for="id_profile_picture">Profile Picture</label>
+                            {{ form.profile_picture|add_class:"form-control-file" }}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-group text-right mt-4">
+                            <button type="submit" class="btn btn-warning px-4">Save Changes</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-
-
-
-{% include "Alibaba/footer.html" %}
- 
-{% endblock  %}
+{% endblock %}

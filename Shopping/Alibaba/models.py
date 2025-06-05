@@ -76,6 +76,7 @@ class ProfileModel(models.Model):
     # Personal Information
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=254,null = True)
     mobile = models.CharField(max_length=15)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], blank=True)
