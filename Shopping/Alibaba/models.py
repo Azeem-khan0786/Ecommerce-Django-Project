@@ -14,7 +14,7 @@ Catagories_Choice=(('PNT','pents'),
                    ('SA','Sarees'),
                    ('WA','Wallets'),
                      )
-# field for CustomerModel 
+# field for ProfileModel 
 STATE_CHOICES=(('AP' , 'Andhra Pradesh'),
 ('AR' , 'Arunachal Pradesh'),
 ('AS' , 'Assam'),
@@ -72,19 +72,34 @@ Order_status =(('Draft', 'Draft'),         # Order created from cart, no address
     ('Cancelled', 'Cancelled'),
     ('Failed', 'Failed'),)
 
-class CustomerModel(models.Model):
+class ProfileModel(models.Model):
+    # Personal Information
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     name = models.CharField(max_length=100)
-    location = models.CharField(max_length=255)
-    city = models.CharField(max_length=255)
-    mobile = models.IntegerField()
-    zipcode = models.IntegerField()
-    state = models.CharField(max_length=2, choices=STATE_CHOICES)
+    mobile = models.CharField(max_length=15)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], blank=True)
 
-    def __str__(self): # Here
-        return self.name + " " + self.location
+    # Address Information
+    address_line1 = models.CharField("Address Line 1", max_length=255)
+    address_line2 = models.CharField("Address Line 2", max_length=255, blank=True)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=2, choices=STATE_CHOICES)
+    zipcode = models.CharField(max_length=10)
+    country = models.CharField(max_length=100, default='India')
+
+    # Profile Info
+    profile_picture = models.ImageField(upload_to='profileImage', null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile with email {self.user.email}"
+    
     class Meta:
         unique_together=('user',)
+        
 # method for create category        
 class Category(models.Model):
     name = models.CharField(max_length=20,default='1')

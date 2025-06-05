@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect ,get_object_or_404
-from .models import ProductModel,Category,CustomerModel,OrderItem,Order ,Address,CartItem,Cart
+from .models import ProductModel,Category,ProfileModel,OrderItem,Order ,Address,CartItem,Cart
 from django.views import View
-from .forms import RegistrationForm,LoginForm,CustomerProfileForm,ChangePasswordForm
+from .forms import RegistrationForm,LoginForm,ProfileForm,ChangePasswordForm
 from django.contrib import messages
 from django.contrib.auth import login, authenticate ,logout
 from django.contrib.auth.decorators import login_required
@@ -131,11 +131,11 @@ class LoginView(View):
 class ProfileView(View):
     def get(self,request):
         messages=''
-        form=CustomerProfileForm()
+        form=ProfileForm()
         return render(request,'Alibaba/profile.html',context={"profile_form":form,"message":messages})
     def post(self,request):
         if request.method=='POST':
-            form=CustomerProfileForm(request.POST)
+            form=ProfileForm(request.POST)
             if form.is_valid():
                 user=request.user
                 name=form.cleaned_data['name']
@@ -144,7 +144,7 @@ class ProfileView(View):
                 mobile=form.cleaned_data['mobile']
                 state=form.cleaned_data['state']
                 zipcode=form.cleaned_data['zipcode']
-                data=CustomerModel(user=user,name=name,location=location,city=city,mobile=mobile,state=state,zipcode=zipcode)
+                data=ProfileModel(user=user,name=name,location=location,city=city,mobile=mobile,state=state,zipcode=zipcode)
 
                 data.save()
                 print(data)
@@ -164,15 +164,15 @@ def logout_request(request):
     return redirect('home')    
 class UpdateProfile(View):
     def get(self,request,pk):
-        add=CustomerModel.objects.get(user=pk)
-        form=CustomerProfileForm(instance=add)
+        add=ProfileModel.objects.get(user=pk)
+        form=ProfileForm(instance=add)
         print(form)
         return render(request,'Alibaba/updateprofile.html',locals())
     def post(self,request,pk):
-        form=CustomerProfileForm(request.POST)
+        form=ProfileForm(request.POST)
         print('get Form Herer',form)
         if form.is_valid():
-            add=CustomerModel.objects.get(user_id=pk)
+            add=ProfileModel.objects.get(user_id=pk)
             add.name=form.cleaned_data['name']
             add.location=form.cleaned_data['location']
             add.city=form.cleaned_data['city']

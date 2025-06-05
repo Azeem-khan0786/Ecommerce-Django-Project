@@ -10,14 +10,9 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(ProductModel, ProductAdmin)
 
 class CustomerAdmin(admin.ModelAdmin):
-   list_display=('user','name',
-   'location',
-    'city',
-    'mobile',
-    'zipcode',
-    'state' )
+   list_display=('user','name','city','mobile','zipcode','state' )
    
-admin.site.register(CustomerModel,CustomerAdmin)
+admin.site.register(ProfileModel,CustomerAdmin)
 admin.site.register(Cart)
 class CartAdmin(admin.ModelAdmin):
    list_display=['product','quantity','date_added']

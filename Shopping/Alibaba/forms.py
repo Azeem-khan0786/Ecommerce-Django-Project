@@ -1,5 +1,5 @@
 from django import forms
-from .models import ProductModel,CustomerModel,Category,Address
+from .models import ProductModel,ProfileModel,Category,Address
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,PasswordChangeForm
 from django.contrib.auth.models import User
 
@@ -32,18 +32,68 @@ class CategoryForm(forms.ModelForm):
         model =  Category 
         fields = '__all__'   
      
-class CustomerProfileForm(forms.ModelForm):
-    class Meta:
-        model=CustomerModel
-        fields= ('name','location','city', 'mobile','zipcode','state')
-        widgets={'name':forms.TextInput(attrs={'class':'form-control'}),
-                 'location':forms.TextInput(attrs={'class':'form-control'}),
-                 'city':forms.TextInput(attrs={'class':'form-control'}),
-                 'mobile':forms.NumberInput(attrs={'class':'form-control'}),
-                 'zipcode':forms.NumberInput(attrs={'class':'form-control'}),
-                 'state':forms.Select(attrs={'class':'form-control'}),
 
-                 }      
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = ProfileModel
+        fields = (
+            'name',
+            'mobile',
+            'date_of_birth',
+            'gender',
+            'address_line1',
+            'address_line2',
+            'city',
+            'state',
+            'zipcode',
+            'country',
+            'profile_picture',
+        )
+
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Full Name'
+            }),
+            'mobile': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Mobile Number (e.g. +91-9876543210)'
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'form-input',
+                'type': 'date',
+                'placeholder': 'YYYY-MM-DD'
+            }),
+            'gender': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'address_line1': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Address Line 1'
+            }),
+            'address_line2': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Address Line 2 (Optional)'
+            }),
+            'city': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'City'
+            }),
+            'state': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'zipcode': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'ZIP / Postal Code'
+            }),
+            'country': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Country'
+            }),
+            'profile_picture': forms.ClearableFileInput(attrs={
+                'class': 'form-file'
+            }),
+        }      
 class ChangePasswordForm(PasswordChangeForm):
     old_password = forms.CharField(
         strip=False,
