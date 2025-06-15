@@ -19,6 +19,7 @@ from django.urls import path , include
 from Alibaba import views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,7 +32,8 @@ urlpatterns = [
     path('category/<slug:val>',views.CategoryView.as_view(),name='category'),
     path('productDetail/<int:pk>',views.ProductDetail.as_view(),name='productDetail'),
     path('registration/',views.RegistrationView.as_view(),name="registration"),
-    path('login/',views.LoginView.as_view(),name='login'),
+     path('login/', auth_views.LoginView.as_view(template_name='Alibaba/login.html'), name='login'),
+    # path('login/',views.LoginView.as_view(),name='login'),
     path('logout_request/',views.logout_request,name='logout'),
     path('profile/',views.get_profile,name='profile'),
     path('update_profile/',views.update_profile,name="update_profile"),

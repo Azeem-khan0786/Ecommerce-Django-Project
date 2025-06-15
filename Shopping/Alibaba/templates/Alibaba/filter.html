@@ -1,19 +1,35 @@
-<!-- filter.html -->
-<form method="GET" action="">
-    
+<form method="GET" action="" class="d-flex flex-wrap align-items-end">
 
-    <label for="min_price">Min Price:</label>
-    <input type="number" name="min_price" id="min_price" value="{{ request.GET.min_price }}">
+    <div class="form-group mr-3">
+        <input type="number" class="form-control" name="min_price" id="min_price"
+               value="{{ request.GET.min_price }}" placeholder="Min Price">
+    </div>
 
-    <label for="max_price">Max Price:</label>
-    <input type="number" name="max_price" id="max_price" value="{{ request.GET.max_price }}">
+    <div class="form-group mr-3">
+        <input type="number" class="form-control" name="max_price" id="max_price"
+               value="{{ request.GET.max_price }}" placeholder="Max Price">
+    </div>
 
-    <label for="available">Availability:</label>
-    <select name="available" id="available">
-        <option value="" {% if request.GET.available == "" %}selected{% endif %}>All</option>
-        <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>In Stock</option>
-        <option value="false" {% if request.GET.available == "false" %}selected{% endif %}>Out of Stock</option>
-    </select>
+    <div class="form-group mr-3">
+        <select class="form-control" name="available" id="available">
+            <option value="" {% if request.GET.available == "" %}selected{% endif %}>All Availability</option>
+            <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>In Stock</option>
+            <option value="false" {% if request.GET.available == "false" %}selected{% endif %}>Out of Stock</option>
+        </select>
+    </div>
+    <div class="form-group mr-3">
+        <select class="form-control" name="arrivals" id="arrivals">
+            <option value="" {% if request.GET.available == "" %}selected{% endif %}>New Arrivals</option>
+            <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>Past 24 hour </option>
+            <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>Last 10 days</option>
+            <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>Last 30 days</option>
+            <option value="false" {% if request.GET.available == "false" %}selected{% endif %}>Last 3 months</option>
+            <option value="true" {% if request.GET.available == "true" %}selected{% endif %}>Last years</option>
+        </select>
+    </div>
 
-    <button type="submit" class="btn btn-primary mt-2">Apply Filter</button>
+    <div class="form-group mr-3">
+        <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </div>
+
 </form>

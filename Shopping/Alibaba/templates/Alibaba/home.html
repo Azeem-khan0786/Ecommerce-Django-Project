@@ -22,78 +22,97 @@ Home Page
 
 <!-- Category Bar -->
 <div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="category-bar text-center">
-            {% for category in categories %}
-                <a href="/?category={{ category.id }}" class="category-btn">
-                    {{ category.name }}
-                </a>
-            {% endfor %}
+    <div class="row align-items-center mb-2">
+        <!-- Left: Toggle Filter Button -->
+        <div class="col-auto">
+            <button class="btn btn-secondary mb-3" type="button" data-toggle="collapse" data-target="#filterSidebar" id="toggleFilterBtn">
+                Apply Filter
+            </button>
         </div>
-    </div>
-</div>
-
-<!-- Main Content with Sidebar -->
-<div class="container-fluid">
-    
-        <div class="col-12 mb-2">
-            <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#filterSidebar" id="toggleFilterBtn">
-                Toggle Filter
-              </button>
-        </div>
-        <div class="row w-100">
-        <!-- Sidebar -->
-        <div class="col-md-3 collapse show" id="filterSidebar">
-            <div class="card p-3">
-                {% include "Alibaba/filter.html" %}
-            </div>
-        </div>
-
-<!-- Product Grid -->
-        <div id="productGrid" class="col-md-9">
-            <div class="row">
-                {% for x in products %}
-                    <div class="col-md-3 text-center mb-3">
-                        <div class="card text-center" style="max-width: 18rem;">
-                            <div class="product-image">
-                                <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
-                            </div>
-                            <div class="product-details text-dark">
-                                <div class="text-center">{{x.id}}.{{x.title}}</div>
-                                <div class="product-price"><small class="text-color m-1">Retail Price </small>${{x.selling_price}}</div>
-                                <div class="product-price"><small class="text-color m-1">Available Discount </small>${{x.discount}}</div>
-                                <button class="btn btn-primary m-1">
-                                    <a href="{% url 'productDetail' x.pk %}" style="text-decoration: none; color: white;">Visit here Now</a>
-                                </button>
-                                {% if x.not_in_stock %}
-                                     <p style="color: red;">Out of Stock</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
+        <!-- Right: Categories -->
+        <div class="col text-center">
+            <div class="category-bar d-flex justify-content-center flex-wrap">
+                {% for category in categories %}
+                    <a href="/?category={{ category.id }}" class="category-btn mx-2">
+                        {{ category.name }}
+                    </a>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
+<!-- Main Row (contains Sidebar + Product Grid) -->
+<div class="row">
+    <!-- Sidebar (Left) -->
+    <div class=" mx-auto  collapse" id="filterSidebar" style=margin-top:1px;>
+        <div class="d-flex justify-content-center">
+            <div >
+                {% include "Alibaba/filter.html" %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Grid (Right) -->
+    <div id="productGrid" class="col-md-12">  <!-- Default: full width (12 columns) -->
+        <div class="row">
+            {% for x in products %}
+                <div class="col-md-3 text-center ">  <!-- Each product takes 3 columns (4 products per row) -->
+                    <div class="card text-center" style="max-width: 18rem;">
+                        <div class="product-image">
+                            <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
+                        </div>
+                        <div class="product-details text-dark">
+                            <div class="text-center">{{x.id}}.{{x.title}}</div>
+                            <div class="product-price"><small class="text-color m-1">Retail Price </small>${{x.selling_price}}</div>
+                            <div class="product-price"><small class="text-color m-1">Available Discount </small>${{x.discount}}</div>
+                            <button class="btn btn-primary m-1">
+                                <a href="{% url 'productDetail' x.pk %}" style="text-decoration: none; color: white;">Visit here Now</a>
+                            </button>
+                            {% if x.not_in_stock %}
+                                <p style="color: red;">Out of Stock</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 {% include "Alibaba/Pagination.html" %}
 
 {% endblock %} 
 {% block js %}
-<script src="{% static 'js/filterProduct.js' %}"></script>
 <script>
-    $('#toggleFilterBtn').on('click', function () {
-        $('#filterSidebar').on('shown.bs.collapse', function () {
-            $('#productGrid').addClass('col-md-9');
-        });
+$(document).ready(function() {
+    // Initialize on page load
+    if ($('#filterSidebar').hasClass('show')) {
+        $('#productGrid').removeClass('col-md-12').addClass('col-md-9');
+    }
 
-        $('#filterSidebar').on('hidden.bs.collapse', function () {
-            $('#productGrid').addClass('col-md-12');
-        });
+    // Toggle classes when sidebar is shown/hidden
+    $('#filterSidebar').on('shown.bs.collapse', function() {
+        $('#productGrid').removeClass('col-md-12').addClass('col-md-9');
     });
-</script>
 
-{% endblock  %}<!-- Bootstrap CSS -->
+    $('#filterSidebar').on('hidden.bs.collapse', function() {
+        $('#productGrid').removeClass('col-md-9').addClass('col-md-12','mb-3');
+    });
+});
+</script>
+<script src="{% static 'js/filterProduct.js' %}"></script>
+{% comment %} <script>
+    $('#filterSidebar').on('shown.bs.collapse', function () {
+        $('#productGrid').removeClass('col-md-12').addClass('col-md-9');
+    });
+
+    $('#filterSidebar').on('hidden.bs.collapse', function () {
+        $('#productGrid').removeClass('col-md-9').addClass('col-md-12');
+    });
+</script>   {% endcomment %}
+
+
+{% endblock  %}
 
 
 

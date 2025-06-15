@@ -11,7 +11,7 @@
 }
 </style>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark " style="height:50px;">
-  <a class="navbar-brand" href="#"> <img src="{% static 'image/shop.jpg' %}" alt="" width="40" height="40"> </a>
+  <!-- <a class="navbar-brand" href="#"> <img src="{% static 'image/shop.jpg' %}" alt="" width="40" height="40"> </a> logo -->
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -19,18 +19,20 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-
       <li class="nav-item active">
-        <a class="nav-link" href="/"> <i class="fa-solid fa-house"></i><span class="sr-only">(current)</span></a>
+        <a class="nav-link font-weight-bold text-white h4 mb-0" href="/" style="text-decoration: none;">
+          Alibaba<span class="text-warning">.com</span>
+          <span class="sr-only">(current)</span>
+        </a>
       </li>
       <div class="btn-group ml-3">
         
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'about' %}">About Us</a>
+          <a class="nav-link font-weight-bold text-white h5 mb-0" href="{% url 'about' %}" style="text-decoration: none;">
+            About
+          </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link " href="{% url 'contact' %}">Contact Us</a>
-        </li>
+         
     </ul>
     <div class="dropdown">
   
@@ -42,50 +44,67 @@
 </div>
     <form class="form-inline my-2 my-lg-0" action="{% url 'product_search' %}" method="get">
       <ul class="navbar-nav m-auto">
-      <input class="form-control mr-sm-2 p-1" style="width: 500px;" type="search" placeholder="Search in Alibaba" aria-label="Search"
-        name='search'>
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search </button>
-        <li class="nav-item">
-          <a class="nav-link" href="/admin">Admin</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'registration' %}">Registration</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'login' %}">Login</a>
-        </li>
+        <input class="form-control mr-sm-2 p-1" style="width: 760px;" type="search" placeholder="Search in Alibaba" aria-label="Search"
+          name='search'>
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search </button>
       </ul>
+    </form>  
       {% if user.is_authenticated %}
-      <div class="btn-group ml-3">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fa-solid fa-user m-1"></i>{{request.user}}
-        </a>
-
-        </ul>
-        <div class="dropdown-menu ">
-
-          <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
-          <a class="dropdown-item" href="{% url 'get_order' %}">Orders</a>
-          <a class="dropdown-item" href="{% url 'changepassword' %}">Change Password</a>
-          <a class="dropdown-item" href="{% url 'logout' %}">logout</a>
-
-          <a class="dropdown-item" href="{% url 'viewcart'  %}">View Cart</a>
-          <a class="dropdown-item" href="{% url 'checkout'  %}">Checkout Cart</a>
-
-
-        </div>
-        
-      </div>
-      {% endif %}
-      
-
-    </form>
-    {% if user.is_authenticated %}
-    <a class="btn btn-success btn-sm ml-3" href="{% url 'viewcart'  %}">
-      <i class="fa fa-shopping-cart"></i> Cart
-      <span class="badge badge-light">{{cart_count}}</span>
+  <!-- If User is Logged In -->
+  <div class="btn-group ml-2">
+    <a class="nav-link dropdown-toggle text-white" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <small>Hello, {{ request.user }}</small><br>
+      <strong>Account &amp; Lists</strong>
     </a>
-    {% endif %}
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="{% url 'profile' %}">Profile</a>
+      <a class="dropdown-item" href="{% url 'get_order' %}">Orders</a>
+      <a class="dropdown-item" href="{% url 'changepassword' %}">Change Password</a>
+      <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="{% url 'viewcart' %}">View Cart</a>
+      <a class="dropdown-item" href="{% url 'checkout' %}">Checkout</a>
+    </div>
+  </div>
+
+  <!-- Returns & Orders -->
+  <div class="ml-3">
+    <a href="{% url 'get_order' %}" class="nav-link text-white">
+      <small>Returns</small><br>
+      <strong>&amp; Orders</strong>
+    </a>
+  </div>
+
+  <!-- Cart -->
+  <a class="btn btn-success btn-sm ml-2" href="{% url 'viewcart' %}">
+    <i class="fa fa-shopping-cart"></i> Cart
+    <span class="badge badge-light">{{ cart_count }}</span>
+  </a>
+
+  {% else %}
+  <!-- If User is NOT Logged In -->
+  <div class="ml-2">
+    <a href="{% url 'login' %}" class="nav-link text-white">
+      <small>Hello,  sign in</small><br>
+      <strong>Account &amp; Lists</strong>
+    </a>
+  </div>
+
+  <!-- Returns & Orders (can redirect to login if not authenticated) -->
+  <div class="ml-2">
+    <a href="{% url 'login' %}" class="nav-link text-white">
+      <small>Returns</small><br>
+      <strong>&amp; Orders</strong>
+    </a>
+  </div>
+
+  <!-- Cart (optional for guests) -->
+  <a class="btn btn-success btn-sm ml-3" href="{% url 'viewcart' %}">
+    <i class="fa fa-shopping-cart"></i> Cart
+    <span class="badge badge-light">{{ cart_count }}</span>
+  </a>
+
+  {% endif %}
 
 
 </nav>

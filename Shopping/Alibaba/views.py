@@ -41,9 +41,9 @@ def home(request):
     # Filter by availability (example)
     available = request.GET.get('available')
     if available == 'true':
-        products = products.filter(stock_quantity__gt=0)
+        products = products.filter(product_in_stock__gt=0)
     elif available == 'false':
-            products = products.filter(stock_quantity=0)
+            products = products.filter(product_in_stock=0)
 
     data={
         'products': products,
@@ -104,34 +104,7 @@ class RegistrationView(View):
         else:
             messages.warning(request, "Data was not inserted")
         return render(request,"Alibaba/registration.html",context={"register_form":form})
-        
-class LoginView(View):
-    def get(self, request):
-        form = LoginForm()
-        messages = ''  # Initialize messages (if needed)
-        return render(request, 'Alibaba/login.html', context={'login_form': form, 'messages': messages})
-
-    def post(self, request):
-        form = LoginForm(request.POST)
-         # Initialize messages (if needed)
-
-        if form.is_valid():
-            user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
-            if user is not None:
-                login(request, user)
-                messages.success(request,f'Hello {user.username}! You have been logged in')
-                return redirect('home')  # Redirect to home page upon successful login
-            else:
-                messages.warning(request,'Login Failed!')
             
-        else:
-            # Form is invalid, re-render the login page with form and error messages
-            return render(request, 'Alibaba/login.html', context={"login_form": form, 'messages': messages})
-
-        # Ensure a response is returned in all scenarios
-        return render(request, 'Alibaba/login.html', context={"login_form": form, 'messages': messages})  
-            
-
 def get_profile(request):
     profile = ProfileModel.objects.get(user=request.user)
     return render(request,'Alibaba/profile.html',context={"profile":profile})

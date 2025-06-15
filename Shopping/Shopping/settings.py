@@ -152,3 +152,7 @@ PAYPAL_RECEIVER_EMAIL = 'businessalibaba@gmail.com' # business sandbox account
 
 # PAYPAL_RECEIVER_EMAIL = os.environ.get("PAYPAL_RECEIVER_EMAIL")
 # PAYPAL_TEST = os.environ.get("PAYPAL_TEST") == "True"
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_URL = '/login/'
