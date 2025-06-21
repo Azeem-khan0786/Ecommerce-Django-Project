@@ -3,11 +3,11 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 10px; /* space between buttons */
-    padding: 10px;
+    gap: 5px; /* space between buttons */
+    padding: 3px;
     background-color: #f8f9fa; /* light background */
     /* border-radius: 10px; */
-    margin: 3px 15px 15px 5px;
+    margin: 1px -8px 1px -8px;
     
 
 }
@@ -15,15 +15,17 @@
 .category-btn {
     display: inline-block;
     padding: 8px 16px;
-    background-color: #007bff; /* Bootstrap primary color */
-    color: white;
+     /* background-color: #0f68c7; Bootstrap primary color */
     text-decoration: none;
     /* border-radius: 20px; */
     font-size: 16px;
+    font-weight: bold;
+    color: black;
     transition: background-color 0.3s ease;
 }
 
 .category-btn:hover {
-    background-color: #00b300; /* darker on hover */
     text-decoration: none;
+    border: 2px solid black;
+    /* Light gray/darker hover effect */
 }

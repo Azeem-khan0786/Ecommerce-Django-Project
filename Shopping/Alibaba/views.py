@@ -28,10 +28,14 @@ def home(request):
     Category_id=request.GET.get('category')
     print(Category_id)
     if Category_id:
-        products = ProductModel.get_products_by_category(Category_id)     
-
+        selected_category = Category.objects.get(id =Category_id)
+        products = ProductModel.get_products_by_category(Category_id)
+        if not products.exists():
+            messages.info(request, f"No products found for category: {selected_category.name}")  
+        
     else:
-        products = ProductModel.get_products()     
+        products = ProductModel.get_products()
+             
     # filter by price
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')

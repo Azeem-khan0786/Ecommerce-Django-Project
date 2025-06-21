@@ -2,38 +2,58 @@
 {% extends "Alibaba/base.html" %}
 {% load static %}
 {% block title %} Product Details{% endblock %}
+{% block css %}
+
+<link rel="stylesheet" href="{% static 'css/ProductDetails.css' %}">
+{% endblock %}
 {% block content %}
 {% include "Alibaba/navbar.html" %}
-   <h3 class="text-center" style="font-family: Goergia;font-size: 50px;"  ></h3>
-   <div class="container">
-     <div class="row flex justify-content-between">
-        <div class="img2 col-lg-5 mt-5">
-            <img src="{{data.product_image.url}}" alt="" width="200px" height="300px">
-        </div>
-        <div class="productdetail col-lg-5">
-            <h5 style="font-family: Goergia;font-size: 50px;">{{data.title}}</h5>
-            
-            <h5>$ {{data.selling_price}}/</h5>
-            <h5>$ {{data.discount}}/-(Discount)</h5>
-            <br><br>
-            <h4> Product Features</h4>
-            <small>{{data.description}}</small>
-            <h4> Product Composition</h4>
-            <small>{{data.composition}}</small>
-            <div class="buttons row flex" style="font-family: Rajdhani;">
-               {% if data.not_in_stock %}
-                  <button class="btn btn-warning p-1 m-1 btn-1 btn btn-primary w-100">Add to Cart disabled + “Out of Stock”</button>
-               {% else %}  
-                  <button class="btn btn-warning p-1 m-1 btn-1 btn btn-primary w-100"> <a href="{% url 'addcart' data.id %}" class="text-decoration-none text-white ">Add to Card</a></button>
-                  <button class="btn btn-dark p-1 m-1 btn-1 btn btn-primary w-100"> <a href="{%  url 'checkout' %}" class="text-decoration-none text-white ">Buy Now</a></button>
-               {% endif %}  
-                  
-                  
-          
+   <div class="container product-page mt-5">
+    <div class="row align-items-stretch">
+        <!-- Product Image -->
+        <div class="col-lg-5 mb-4">
+            <div class="product-image-container">
+                <img src="{{ data.product_image.url }}" alt="{{ data.title }}">
             </div>
-
         </div>
-     </div>
-   </div>
+
+        <!-- Product Info -->
+        <div class="col-lg-7 mb-4">
+            <div class="product-info">
+                <div>
+                    <h1>{{ data.title }}</h1>
+
+                    <div class="product-price">₹{{ data.selling_price }}</div>
+                    <div class="product-discount">Discount: ₹{{ data.discount }}</div>
+
+                    {% if data.not_in_stock %}
+                        <div class="stock-status">Out of Stock</div>
+                    {% endif %}
+
+                    <hr>
+                    <h4>Product Features</h4>
+                    <div class="product-description">
+                        <small>{{ data.description }}</small>
+                    </div>
+
+                    <h4>Product Composition</h4>
+                    <div class="product-description">
+                        <small>{{ data.composition }}</small>
+                    </div>
+                </div>
+
+                {% if not data.not_in_stock %}
+                    <div class="product-buttons mt-4">
+                        <a href="{% url 'addcart' data.id %}" class="btn btn-primary text-white">Add to Cart</a>
+                        <a href="{% url 'checkout' %}" class="btn btn-dark text-white">Buy Now</a>
+                    </div>
+                {% else %}
+                    <button class="btn btn-secondary w-100 mt-4" disabled>Add to Cart (Out of Stock)</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
    {% include "Alibaba/footer.html" %}
 {% endblock %}

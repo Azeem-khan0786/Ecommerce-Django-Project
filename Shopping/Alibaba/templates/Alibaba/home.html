@@ -6,32 +6,14 @@ Home Page
 {% block css %}
 <link rel="stylesheet" href="{% static 'css/categoryButton.css' %}">
 <link rel="stylesheet" href="{% static 'css/filterProduct.css' %}">
+<link rel="stylesheet" href="{% static 'css/Productcard.css' %}">
+
 {% endblock %}
 {% block content %}
-
 {% include "Alibaba/navbar.html" %}
-{% comment %} {% include 'Alibaba/filterProduct.html' %} {% endcomment %}
-
-
-{% comment %} {% for mess in messages %}
-<div><h5 class="text-dark text-center d-block p-3 bg-warning h-25"  >{{mess}}</h5></div>
-{% endfor %} {% endcomment %}
-
-{% include "Alibaba/slidder-content.html" %}
-<hr style="height: 2px; background-color: rgb(160, 18, 18);">
-
-<!-- Category Bar -->
-<div class="container-fluid">
-    <div class="row align-items-center mb-2">
-        <!-- Left: Toggle Filter Button -->
-        <div class="col-auto">
-            <button class="btn btn-secondary mb-3" type="button" data-toggle="collapse" data-target="#filterSidebar" id="toggleFilterBtn">
-                Apply Filter
-            </button>
-        </div>
-        <!-- Right: Categories -->
+<!-- Right: Categories -->
         <div class="col text-center">
-            <div class="category-bar d-flex justify-content-center flex-wrap">
+            <div class="category-bar d-flex justify-content-center ">
                 {% for category in categories %}
                     <a href="/?category={{ category.id }}" class="category-btn mx-2">
                         {{ category.name }}
@@ -39,78 +21,91 @@ Home Page
                 {% endfor %}
             </div>
         </div>
+
+{% comment %} {% include "Alibaba/slidder-content.html" %} {% endcomment %}
+<hr style="height: 2px; background-color: rgb(160, 18, 18);">
+
+<!-- Category Bar -->
+<div class="container-fluid">
+    <div class="row align-items-center mb-2">
+        {% if products %}
+        <!-- Sidebar (Left) -->
+            <div class=" mx-auto" id="filterSidebar" style=margin-top:1px;>
+                <div class="d-flex justify-content-center">
+                    <div >
+                        {% include "Alibaba/filter.html" %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}  
     </div>
 </div>
 <!-- Main Row (contains Sidebar + Product Grid) -->
 <div class="row">
-    <!-- Sidebar (Left) -->
-    <div class=" mx-auto  collapse" id="filterSidebar" style=margin-top:1px;>
-        <div class="d-flex justify-content-center">
-            <div >
-                {% include "Alibaba/filter.html" %}
-            </div>
-        </div>
-    </div>
-
     <!-- Product Grid (Right) -->
-    <div id="productGrid" class="col-md-12">  <!-- Default: full width (12 columns) -->
+    <div id="productGrid" class="col-md-12"> 
         <div class="row">
-            {% for x in products %}
-                <div class="col-md-3 text-center ">  <!-- Each product takes 3 columns (4 products per row) -->
-                    <div class="card text-center" style="max-width: 18rem;">
-                        <div class="product-image">
-                            <img src="{{x.product_image.url}}" alt="" width="200px" height="300px">
-                        </div>
-                        <div class="product-details text-dark">
-                            <div class="text-center">{{x.id}}.{{x.title}}</div>
-                            <div class="product-price"><small class="text-color m-1">Retail Price </small>${{x.selling_price}}</div>
-                            <div class="product-price"><small class="text-color m-1">Available Discount </small>${{x.discount}}</div>
-                            <button class="btn btn-primary m-1">
-                                <a href="{% url 'productDetail' x.pk %}" style="text-decoration: none; color: white;">Visit here Now</a>
-                            </button>
-                            {% if x.not_in_stock %}
-                                <p style="color: red;">Out of Stock</p>
-                            {% endif %}
+            {% if products %}
+                {% for x in products %}
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 d-flex justify-content-center">
+                        <div class="product-card d-flex flex-column justify-content-between">
+                            <div class="product-image">
+                                <img src="{{ x.product_image.url }}" alt="{{ x.title }}">
+                            </div>
+                            <div class="product-details text-center mt-2">
+                                <div class="product-title">{{ x.id }}. {{ x.title }}</div>
+                                <div class="product-price">Retail Price: ₹{{ x.selling_price }}</div>
+                                <div class="product-discount">Discount: ₹{{ x.discount }}</div>
+
+                                {% if x.not_in_stock %}
+                                    <div class="out-of-stock">Out of Stock</div>
+                                {% endif %}
+
+                                <button class="btn btn-primary visit-button">
+                                    <a href="{% url 'productDetail' x.pk %}">Visit Now</a>
+                                </button>
+                            </div>
                         </div>
                     </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">No products available.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+     <!-- If dont have product of selected categories -->
+    {% if messages %}
+    <div class="d-flex justify-content-center mt-4">
+        <div class="col-md-8">
+            {% for message in messages %}
+                <div class="alert alert-warning d-flex align-items-center p-3 shadow-sm rounded" role="alert" style="background-color: #fff8e1; border: 1px solid #ffe58f; color: #856404;">
+                    <!-- Bootstrap icon or SVG -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="40" fill="currentColor"
+                         class="bi bi-info-circle-fill mr-3 flex-shrink-0" viewBox="0 0 16 16" style="margin-right: 10px;">
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-11.412-.588 2.29c-.07.27-.12.437-.25.525-.125.084-.285.098-.451.058-.19-.045-.434-.21-.538-.335a.52.52 0 0 1-.112-.388l.007-.058.003-.019.002-.008L7.002 5.45l-.002-.01a.512.512 0 0 1 .016-.13c.03-.104.092-.236.2-.356.124-.138.274-.228.465-.26.18-.03.39.001.546.098.148.093.265.226.34.392.078.174.105.385.056.566l-.004.015zM8 12a.905.905 0 1 1 0-1.81.905.905 0 0 1 0 1.81z"/>
+                    </svg>
+                    <div class="flex-grow-1">
+                        {{ message }}
+                    </div>
+                    <!-- Optional Close Button -->
+                    <button type="button" class="close ml-3" data-dismiss="alert" aria-label="Close" style="border: none; background: none;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
             {% endfor %}
         </div>
     </div>
+    {% endif %}
 </div>
-
+{% include 'Alibaba/footer.html' %}
 {% include "Alibaba/Pagination.html" %}
 
 {% endblock %} 
 {% block js %}
-<script>
-$(document).ready(function() {
-    // Initialize on page load
-    if ($('#filterSidebar').hasClass('show')) {
-        $('#productGrid').removeClass('col-md-12').addClass('col-md-9');
-    }
 
-    // Toggle classes when sidebar is shown/hidden
-    $('#filterSidebar').on('shown.bs.collapse', function() {
-        $('#productGrid').removeClass('col-md-12').addClass('col-md-9');
-    });
-
-    $('#filterSidebar').on('hidden.bs.collapse', function() {
-        $('#productGrid').removeClass('col-md-9').addClass('col-md-12','mb-3');
-    });
-});
-</script>
 <script src="{% static 'js/filterProduct.js' %}"></script>
-{% comment %} <script>
-    $('#filterSidebar').on('shown.bs.collapse', function () {
-        $('#productGrid').removeClass('col-md-12').addClass('col-md-9');
-    });
-
-    $('#filterSidebar').on('hidden.bs.collapse', function () {
-        $('#productGrid').removeClass('col-md-9').addClass('col-md-12');
-    });
-</script>   {% endcomment %}
-
 
 {% endblock  %}
 
