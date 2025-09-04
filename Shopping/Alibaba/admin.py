@@ -14,11 +14,16 @@ class CustomerAdmin(admin.ModelAdmin):
    
 admin.site.register(ProfileModel,CustomerAdmin)
 admin.site.register(Cart)
+
 class CartAdmin(admin.ModelAdmin):
    list_display=['product','quantity','date_added']
+
 admin.site.register(CartItem,CartAdmin)   
 
-admin.site.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['id','name']
+admin.site.register(Category,CategoryAdmin)
+
 
 admin.site.register(Payment)
 

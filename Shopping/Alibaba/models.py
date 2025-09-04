@@ -114,8 +114,6 @@ class Category(models.Model):
         
 class ProductModel(models.Model):
     title = models.CharField(max_length=70)
-    selling_price = models.FloatField()
-    discount = models.FloatField()
     description = models.TextField(max_length=200)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)  # New ForeignKey
     product_image = models.ImageField(upload_to='proImage', blank=True, null=True)
@@ -123,6 +121,8 @@ class ProductModel(models.Model):
     composition = models.TextField( blank=True,null=True)
     is_stock = models.CharField(max_length=10,choices=Stock_Choices,default= 'in_stock')
     product_in_stock = models.PositiveSmallIntegerField(default=1)
+    selling_price = models.FloatField()
+    discount = models.FloatField()
 
     def __str__(self):
         return f"{self.title}"

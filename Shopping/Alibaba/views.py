@@ -20,6 +20,35 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from decimal import Decimal
 
 # Create your views here.
+class RegistrationView(View):
+    def get(self,request):
+        form=RegistrationForm()
+        return render(request,"Alibaba/registration.html",context={"register_form":form})
+    def post(self,request):
+        form=RegistrationForm(request.POST)
+        if form.is_valid():
+            user=form.save()
+            login(request,user)  # if login automatically after registration
+            messages.success(request,'Registration has been completed!!!!!!!!!!')
+            return redirect('home')
+        else:
+            messages.warning(request, "Data was not inserted")
+        return render(request,"Alibaba/registration.html",context={"register_form":form})
+            
+def get_profile(request):
+    profile = ProfileModel.objects.get(user=request.user)
+    return render(request,'Alibaba/profile.html',context={"profile":profile})
+
+def update_profile(request):
+        profile = ProfileModel.objects.get(user= request.user)
+        if request.method=='POST':
+            form=ProfileForm(request.POST,request.FILES,instance = profile)
+            if form.is_valid():
+                form.save()
+                return redirect('profile')
+        else:
+            form = ProfileForm(instance=profile)
+        return render(request,'Alibaba/updateprofile.html',context={"form":form,"message":messages})
 
 def home(request):
     products =ProductModel.get_products()
@@ -58,10 +87,10 @@ def home(request):
     return render(request,'Alibaba/home.html', data )
 
 
-# ChangePasswordForm
-def displayPost(request):
-    item=ProductModel.objects.all()
-    return render(request,'Alibaba/displayPost.html',{'item':item})
+# # ChangePasswordForm
+# def displayPost(request):
+#     item=ProductModel.objects.all()
+#     return render(request,'Alibaba/displayPost.html',{'item':item})
 
 class CategoryView(View):
     def get(self,request,val):
@@ -94,35 +123,6 @@ class CategoryView(APIView):
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
 
-class RegistrationView(View):
-    def get(self,request):
-        form=RegistrationForm()
-        return render(request,"Alibaba/registration.html",context={"register_form":form})
-    def post(self,request):
-        form=RegistrationForm(request.POST)
-        if form.is_valid():
-            user=form.save()
-            login(request,user)  # if login automatically after registration
-            messages.success(request,'Registration has been completed!!!!!!!!!!')
-            return redirect('home')
-        else:
-            messages.warning(request, "Data was not inserted")
-        return render(request,"Alibaba/registration.html",context={"register_form":form})
-            
-def get_profile(request):
-    profile = ProfileModel.objects.get(user=request.user)
-    return render(request,'Alibaba/profile.html',context={"profile":profile})
-
-def update_profile(request):
-        profile = ProfileModel.objects.get(user= request.user)
-        if request.method=='POST':
-            form=ProfileForm(request.POST,request.FILES,instance = profile)
-            if form.is_valid():
-                form.save()
-                return redirect('profile')
-        else:
-            form = ProfileForm(instance=profile)
-        return render(request,'Alibaba/updateprofile.html',context={"form":form,"message":messages})
 
 class makeOrder(View):
     def get(self,request):
@@ -256,21 +256,24 @@ def view_cart(request):
 #             # order_item.save()
 #     return render(request,'Alibaba/checkout.html',{'order_id':order.id,'order_item':order_item})
     
-class Checkout(View):
+class Checkout(View): 
     def get(self, *args, **kwargs):
                
             order= convert_cart_to_order(self.request)
             address_id =self.request.session.get('selected_address_id') 
             if address_id:
                 print('address_id ' , address_id)
-                shipping_address = Address.objects.get(id=address_id,user=self.request.user)
+                shipping_address = Address.objects.filter(id=address_id,user=self.request.user).first()
             else:
                 shipping_address = Address.objects.filter(user=self.request.user).first()
             
             # shipping_address = Address.objects.filter(user=self.request.user, address_type='shipping')
             billing_address = Address.objects.filter(user=self.request.user,address_type = 'billing').first()
             
-            
+            # redirect if no shipping address exists
+            if not shipping_address:
+                messages.error(self.request,'Please add or select shipping address for further procesing')
+                return redirect('address')
             # print('order',order)
             form = CheckoutForm()
             context = {
@@ -494,8 +497,21 @@ class AddressView(View):
             address.user = request.user
             address.save()
             return redirect('address')  # make sure this URL name exists
-        address = Address.objects.filter(user=request.user)
-        return render(request, 'Alibaba/address.html', context={'form': form, 'address': address})
+        shipping_addresses = Address.objects.filter(
+            user=request.user,
+            address_type='shipping'
+        )
+        billing_address = Address.objects.filter(
+            user=request.user,
+            address_type='billing'
+        ).first()
+
+        return render(request, 'Alibaba/address.html', context={
+            'form': form,
+            'shipping_addresses': shipping_addresses,
+            'billing_address': billing_address
+        })
+        
 
 # select Address for checkout    
 class SelectAddress(View):

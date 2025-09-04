@@ -33,60 +33,55 @@
   {% else %}
         <div class="alert alert-warning">
             You don't have any shipping addresses. 
-            <a href="">Add one now</a>.
+            <a href="{% url 'address' %}">Add one now</a>.
         </div>
   {% endif %}
   <br>
 {% comment %}  form for select shipping address {% endcomment %}
   <h5>Your Shipping Address</h5>
+  <!-- Show Your Shipping Address if shipping addresse exist -->
+  {% if shipping_address %}
   <form method="post" action="{% url 'selected_address' %}">
     {% csrf_token %}
     <div class="row ">
-       {% if shipping_address %}
-            {% for address in shipping_address %}
-      <div class="col">
-        <label class="card position-relative">
-          <input type="radio" class="form-check-input position-absolute top-0 end-0  " style ='margin:30px 5px;' name="shipping_address" value="{{ address.id }}">
-          <div class="card-body m-1">
-          
-             
-                            <p class="card-text">
-                                {{ address.address_line1 }} 
-                                {% if address.address_line2 %}
-                                    {{ address.address_line2 }}<br>
-                                {% endif %}
-                                {{ address.city }}, 
-                                {% if address.state %}{{ address.state }}, {% endif %}
-                                {{ address.postal_code }}
-                                {{ address.country }}<br>
-                                Phone: {{ address.phone_number }}
-                            </p>
-                            
-                            <a href="" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        </div>
+          {% for address in shipping_address %}
+                <div class="col">
+                  <label class="card position-relative">
+                    <input type="radio" class="form-check-input position-absolute top-0 end-0  " style ='margin:30px 5px;' name="shipping_address" value="{{ address.id }}">
+                    <div class="card-body m-1">
+                          <p class="card-text">
+                              {{ address.address_line1 }} 
+                              {% if address.address_line2 %}
+                                  {{ address.address_line2 }}<br>
+                              {% endif %}
+                              {{ address.city }}, 
+                              {% if address.state %}{{ address.state }}, {% endif %}
+                              {{ address.postal_code }}
+                              {{ address.country }}<br>
+                              Phone: {{ address.phone_number }}
+                          </p>
+                          <a href="" class="btn btn-sm btn-outline-secondary">Edit</a>
                     </div>
-                  {% endfor %}  
-              {% else %}
-                    <div class="alert alert-warning">
-                        You don't have any shipping addresses. 
-                        <a href="">Add one now</a>.
-                    </div>
-              {% endif %}
-          </div>
-        </label>
-
+                    </label>
+                  </div>  
+          {% endfor %} 
+        </div> 
     <div class="mt-4 text-end">
       <button type="submit" class="btn btn-success">Continue to Checkout</button>
     </div>
   </form>
-</div>
+    <!-- Show Add Address Form if no shipping addresses -->      
+    {% else %}  
+        <div class="alert alert-warning">
+          You don't have any shipping addresses. Please add one below:
+      </div>
 
-  <!-- <form action = "" method = "post">
-    {% csrf_token %}
-    {{form }}
-    <input type="submit" value="Submit">
-  </form> -->
-
+      <form method="post" action="{% url 'address' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Save Address</button>
+      </form>
+    {% endif %}
 {% include "Alibaba/footer.html" %}
  
 {% endblock  %}
