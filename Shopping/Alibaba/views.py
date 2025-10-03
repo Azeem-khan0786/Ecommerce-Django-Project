@@ -10,6 +10,7 @@ from django.http import JsonResponse,HttpResponse
 from .forms import CheckoutForm ,AddressForm
 from paypal.standard.forms import PayPalPaymentsForm
 from django.conf import settings
+from django.db.models import Q
 import uuid # unique user_id for duplicate user
 from django.core.exceptions import ObjectDoesNotExist
 from Alibaba.serializers import ProductSerializer,CategorySerializer
@@ -462,12 +463,21 @@ def remove_from_cart(request, item_id):
     return redirect('viewcart')
 
 def product_search(request):
-    products = ProductModel.objects.all()
-    category = request.GET.get('category')  # Use 'category' instead of 'category' for consistency
-    if category:
-        products = products.filter(category=category)  # Assuming 'category' is a field in your ProductModel
 
-    return render(request, 'Alibaba/search.html', {'products': products, 'category': category})
+    query = request.GET.get('search', '')  # Get the search query
+    if query:
+        products = ProductModel.objects.filter(
+        Q(title__icontains=query) |
+        Q(category__name__icontains=query) |
+        Q(description__icontains=query)
+    )  # Or any field you want to search
+    else:
+        products = ProductModel.objects.all()
+    context = { 
+        'products': products,
+        'search': query,  # Pass the query back to template
+    }    
+    return render(request, 'Alibaba/search.html',context)
 
 def payment_success(request):
     order=Order.objects.get(user=request.user,ordered =False)
