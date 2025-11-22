@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-(-(n)ng^96h9$dp86uog)+97-#*j3lj7upfm9jlp1ts3=@fwf8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','.onrender.com', 'localhost']
 
 
 # Application definition
@@ -134,6 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -156,3 +157,11 @@ PAYPAL_RECEIVER_EMAIL = 'businessalibaba@gmail.com' # business sandbox account
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 LOGIN_URL = '/login/'
+
+import dj_database_url
+import os
+
+if os.environ.get("RENDER"):
+    DATABASES = {
+        "default": dj_database_url.parse(os.environ["DATABASE_URL"])
+    }
