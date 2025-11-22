@@ -97,6 +97,10 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+if os.environ.get("RENDER"):
+    DATABASES = {
+        "default": dj_database_url.parse(os.environ["DATABASE_URL"])
+    }
 
 
 # Password validation
@@ -161,7 +165,3 @@ LOGIN_URL = '/login/'
 import dj_database_url
 import os
 
-if os.environ.get("RENDER"):
-    DATABASES = {
-        "default": dj_database_url.parse(os.environ["DATABASE_URL"])
-    }
